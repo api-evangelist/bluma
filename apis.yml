@@ -1,7 +1,28 @@
 aid: bluma
+accessModel:
+  pricing: unknown
+  onboarding: unknown
+  trial: false
+  try_now: false
+  public: false
+  label: Unknown
+  confidence: low
+  source: []
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/bluma.png
 name: Bluma
-description: Bluma is a company surfaced as a portfolio company of y-combinator and added to the API Evangelist
-  network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+description: >-
+  Bluma is a San Francisco-based AI company (Y Combinator Fall 2025) building a short-form AI content
+  engine that lets creators, agencies, and brands produce social media video ads at scale. The platform
+  "de-edits" existing reference videos into their individual scenes, captions, and overlays, then uses
+  AI asset generation and a node-based canvas editor to recreate and remix shots into new ads, UGC, and
+  template-based videos optimized for TikTok, Reels, and Shorts. Bluma also publishes a set of free,
+  browser-based social tools (video downloading, carousel/slideshow extraction, TikTok/Instagram URL
+  normalization, metadata inspection, transcript generation, audio extraction, thumbnail capture).
+  Founded by Alisa Wu (formerly Zoox/Amazon) and Stephen Ni. No public developer API, OpenAPI, SDK, or
+  developer portal has been published to date; this profile captures the company identity and the
+  security posture of its public web surface.
 url: https://raw.githubusercontent.com/api-evangelist/bluma/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
@@ -11,12 +32,37 @@ x-tier: stub
 x-tier-reason: portfolio-lead
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-18'
 tags:
 - Company
+- AI
+- Video
+- Advertising
+- Marketing
+- Content Creation
+- Short-Form Video
+- Social Media
+- Generative AI
+- Creative Tools
 apis: []
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+common:
+- type: DomainSecurity
+  url: security/bluma-domain-security.yml
+- type: Website
+  url: https://www.getbluma.com
+- type: SignUp
+  url: https://www.getbluma.com/signup
+- type: TermsOfService
+  url: https://www.getbluma.com/terms
+- type: PrivacyPolicy
+  url: https://www.getbluma.com/privacy
+x-enrichment:
+  date: '2026-07-19'
+  status: backfilled
+  pass: local-v1
+  note: backfilled from .gitignore signal + verified work evidence
