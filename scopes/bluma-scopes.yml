@@ -1,0 +1,78 @@
+generated: '2026-08-12'
+method: searched
+source: https://docs.getbluma.com/authentication
+docs: https://docs.getbluma.com/authentication
+note: >-
+  Bluma publishes two disjoint scope vocabularies. The REST API keys carry eight
+  product scopes, granted as a default set on every new key. The MCP server's OAuth
+  tokens carry Clerk identity scopes instead, and nothing published maps one onto the
+  other. Neither vocabulary is derivable from a spec — the advertised OpenAPI at
+  https://api.getbluma.com/api/v1/openapi.json returns 401 — so both lists are read
+  verbatim from Bluma's own documentation and from live anonymous OAuth metadata.
+api_key_scopes:
+  model: API key scopes (not OAuth)
+  granted: default set on every key created through the dashboard or API
+  custom_scopes: Enterprise plans only, by request to support@getbluma.com
+  scopes:
+  - name: videos:create
+    description: Generate new videos
+  - name: videos:read
+    description: View video status and details
+  - name: videos:download
+    description: Download generated videos
+  - name: templates:list
+    description: Browse available templates
+  - name: templates:read
+    description: View template details
+  - name: credits:read
+    description: Check credit balance and history
+  - name: webhooks:manage
+    description: Create and manage webhooks
+  - name: usage:read
+    description: View usage analytics
+  enforcement:
+    status: 403
+    type: permission_denied
+    response_metadata:
+    - required_scope
+    - available_scopes
+oauth_scopes:
+  model: OAuth 2.1 / OpenID Connect (Clerk)
+  applies_to: https://api.getbluma.com/api/mcp
+  advertised_by_resource:
+    source: https://api.getbluma.com/.well-known/oauth-protected-resource
+    scopes:
+    - name: email
+      description: Access the authenticated user's email address
+    - name: profile
+      description: Access the authenticated user's basic profile
+    - name: offline_access
+      description: Issue a refresh token for long-lived agent sessions
+  supported_by_authorization_server:
+    source: https://clerk.getbluma.com/.well-known/oauth-authorization-server
+    scopes:
+    - name: openid
+      description: OpenID Connect authentication
+    - name: profile
+      description: Basic profile claims
+    - name: email
+      description: Email claim
+    - name: public_metadata
+      description: Clerk public user metadata
+    - name: private_metadata
+      description: Clerk private user metadata
+    - name: offline_access
+      description: Refresh token issuance
+  service_documentation: https://clerk.com/docs/oauth/scoped-access
+summary:
+  api_key_scope_count: 8
+  oauth_scope_count: 3
+  oauth_scope_count_supported_by_as: 6
+  scopes_mapped_across_models: false
+gaps:
+- The OAuth vocabulary is identity-only. No published scope expresses authority over
+  Bluma resources (videos, templates, credits) for an MCP-authenticated agent, so the
+  blast radius of an MCP token is not stated.
+- API key scopes are granted as a fixed default set; the docs describe no self-service
+  way to issue a reduced-scope key outside Enterprise, so least-privilege is not
+  available to Free/Starter/Pro customers.

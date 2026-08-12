@@ -1,0 +1,108 @@
+generated: '2026-08-12'
+method: probed
+source: live GET probes of every Bluma host on 2026-08-12
+note: >-
+  Two of Bluma's three hosts serve real /.well-known/ documents. The API host
+  (api.getbluma.com) publishes RFC 9728 OAuth 2.0 Protected Resource Metadata that
+  advertises the hosted MCP server at https://api.getbluma.com/api/mcp and names
+  clerk.getbluma.com as its authorization server; clerk.getbluma.com (a Clerk-hosted
+  CNAME on Bluma's own domain) serves RFC 8414 Authorization Server Metadata, OpenID
+  Connect discovery and a JWKS. Every other well-known path on the API host returns the
+  API's blanket 401 ("No authorization token provided"), and the marketing host
+  www.getbluma.com is a single-page-app catch-all that answers 200 with the SAME 13,073-byte
+  HTML shell for every path — those 200s are NOT documents and are recorded as misses.
+hosts:
+- host: api.getbluma.com
+  role: api
+  paths:
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    content_type: application/json
+    document: true
+    file: bluma-oauth-protected-resource.json
+    spec: RFC 9728
+  - path: /.well-known/oauth-authorization-server
+    status: 401
+    document: false
+    note: blanket auth gate, not a 404
+  - path: /.well-known/security.txt
+    status: 401
+    document: false
+  - path: /.well-known/openid-configuration
+    status: 401
+    document: false
+  - path: /.well-known/api-catalog
+    status: 401
+    document: false
+  - path: /.well-known/ai-plugin.json
+    status: 401
+    document: false
+  - path: /.well-known/agent-card.json
+    status: 401
+    document: false
+  - path: /.well-known/agent.json
+    status: 401
+    document: false
+- host: clerk.getbluma.com
+  role: authorization-server
+  note: >-
+    Clerk-hosted identity service on Bluma's own domain, named as the sole
+    authorization_servers[] entry by the API host's protected-resource metadata.
+  paths:
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    content_type: application/json
+    document: true
+    file: bluma-oauth-authorization-server.json
+    spec: RFC 8414
+  - path: /.well-known/openid-configuration
+    status: 200
+    content_type: application/json
+    document: true
+    file: bluma-openid-configuration.json
+    spec: OpenID Connect Discovery 1.0
+  - path: /.well-known/jwks.json
+    status: 200
+    content_type: application/json
+    document: true
+    file: null
+    note: 450-byte RSA JWKS; not saved (rotating key material, no archival value)
+- host: www.getbluma.com
+  role: marketing
+  spa_catch_all: true
+  spa_shell_bytes: 13073
+  paths:
+  - path: /.well-known/security.txt
+    status: 200
+    content_type: text/html
+    document: false
+    note: SPA shell, not a security.txt — recorded as a MISS
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: text/html
+    document: false
+    note: SPA shell, not an agent card — recorded as a MISS
+  - path: /.well-known/agent.json
+    status: 200
+    content_type: text/html
+    document: false
+    note: SPA shell — recorded as a MISS
+- host: docs.getbluma.com
+  role: documentation
+  paths:
+  - path: /.well-known/security.txt
+    status: 404
+    document: false
+  - path: /.well-known/agent-card.json
+    status: 404
+    document: false
+  - path: /.well-known/agent.json
+    status: 404
+    document: false
+summary:
+  documents_found: 4
+  security_txt: false
+  agent_card: false
+  api_catalog: false
+  oauth_metadata: true
+  openid_configuration: true

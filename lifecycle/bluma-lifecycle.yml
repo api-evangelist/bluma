@@ -1,0 +1,100 @@
+generated: '2026-08-12'
+method: searched
+source: >-
+  https://docs.getbluma.com/api-reference/overview , https://docs.getbluma.com/authentication ,
+  https://docs.getbluma.com/sdks/overview , registry metadata from registry.npmjs.org and
+  pypi.org, plus live probes on 2026-08-12
+docs: https://docs.getbluma.com/api-reference/overview
+versioning:
+  scheme: URL path
+  current_version: v1
+  path_segment: /api/v1
+  policy_published: true
+  policy: >-
+    "The API is versioned via the URL path (/v1/). Breaking changes will result in a new
+    version (/v2/). Your existing integrations will continue working."
+  header_negotiation: false
+  date_based: false
+  version_discovery_endpoint: null
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  note: >-
+    Bluma publishes a no-breaking-change commitment for /v1 but NO deprecation policy:
+    no notice period, no Sunset or Deprecation response headers, no end-of-life schedule,
+    and no list of deprecated operations. The only deprecation mechanic documented
+    anywhere is credential-level — a rotated API key is scheduled to expire in 30 days.
+  credential_deprecation:
+    operation: POST /api/v1/api-keys/{id}/rotate
+    grace_period_days: 30
+    behavior: >-
+      Rotation issues a new key and schedules the old one for expiration in 30 days,
+      enabling zero-downtime rollover.
+status_page:
+  published: false
+  probed:
+  - url: https://status.getbluma.com/
+    status: 000
+    note: DNS does not resolve
+  - url: https://www.getbluma.com/status
+    status: 200
+    note: SPA catch-all shell, not a status page
+  incident_history: false
+  uptime_published: false
+sla:
+  published: false
+  offered_on: Enterprise plan ("SLA guarantee")
+  terms_public: false
+  note: >-
+    An SLA is listed as an Enterprise plan feature on the credits page, but no SLA
+    document, uptime target, or credit schedule is published.
+support:
+  channels:
+  - type: email
+    value: support@getbluma.com
+    scope: general support and refunds
+  - type: email
+    value: stephen@getbluma.com
+    scope: named in the docs for error escalation with a request_id
+  - type: email
+    value: sales@getbluma.com
+    scope: Enterprise custom limits and pricing
+  - type: community
+    value: https://discord.gg/cZGXY4nrFZ
+    status: 200
+    source: https://www.getbluma.com/llms.txt
+  - type: slack
+    value: 1:1 Slack support
+    scope: Enterprise (marketing plan tier)
+  tiering:
+  - plan: Free
+    support: community
+  - plan: Starter
+    support: email
+  - plan: Pro
+    support: priority
+  - plan: Enterprise
+    support: dedicated
+maturity:
+  api_version: v1
+  first_sdk_release: '2025-11-04'
+  latest_sdk_release: '2025-11-13'
+  months_since_last_sdk_release_at_check: 9
+  stage: early
+  note: >-
+    Both first-party SDKs stopped at 1.2.0 on 2025-11-13 and their declared source
+    repositories (github.com/bluma/bluma-typescript, github.com/bluma/bluma-python) and
+    documentation host (docs.bluma.app) do not exist. The live API and docs are healthy,
+    so this reads as SDK drift rather than product abandonment — but a consumer has no
+    way to file an issue against either SDK.
+deprecated_operations: []
+deprecated_operations_note: >-
+  Not derivable — no OpenAPI is readable (https://api.getbluma.com/api/v1/openapi.json
+  returns 401), and no operation is marked deprecated in the documentation.
+gaps:
+- No status page and no incident history for an asynchronous rendering service whose jobs
+  take 2-5 minutes and whose failures surface only as webhooks.
+- No deprecation or sunset policy, and no Sunset/Deprecation headers.
+- SLA is sold but not published.

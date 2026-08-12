@@ -1,0 +1,139 @@
+generated: '2026-08-12'
+method: searched
+source: >-
+  live anonymous probes of api.getbluma.com and clerk.getbluma.com plus
+  https://docs.getbluma.com/errors , https://docs.getbluma.com/authentication ,
+  https://docs.getbluma.com/api-reference/overview ,
+  https://docs.getbluma.com/concepts/rate-limits on 2026-08-12
+note: >-
+  Assessed against cross-cutting standards only. Bluma publishes no compliance program,
+  no certifications and no trust center, so nothing here asserts a regulatory posture.
+standards:
+- id: oauth2
+  name: OAuth 2.0 / 2.1 authorization code with PKCE
+  conforms: true
+  evidence: >-
+    clerk.getbluma.com advertises authorization_code + refresh_token grants,
+    code_challenge_methods_supported [S256], and client_secret_basic/post/none token
+    endpoint auth. Verified at
+    https://clerk.getbluma.com/.well-known/oauth-authorization-server (HTTP 200).
+  scope: MCP server only; the REST API uses static API keys.
+- id: rfc8414
+  name: OAuth 2.0 Authorization Server Metadata
+  conforms: true
+  evidence: >-
+    https://clerk.getbluma.com/.well-known/oauth-authorization-server returns HTTP 200
+    with issuer, authorization_endpoint, token_endpoint, jwks_uri, registration_endpoint
+    and scopes_supported.
+- id: rfc9728
+  name: OAuth 2.0 Protected Resource Metadata
+  conforms: true
+  evidence: >-
+    https://api.getbluma.com/.well-known/oauth-protected-resource returns HTTP 200 with
+    resource, authorization_servers, bearer_methods_supported and scopes_supported; the
+    gated MCP endpoint returns 401 with
+    WWW-Authenticate: Bearer resource_metadata="<that URL>".
+- id: rfc7591
+  name: OAuth 2.0 Dynamic Client Registration
+  conforms: true
+  evidence: >-
+    registration_endpoint https://clerk.getbluma.com/oauth/register is advertised in the
+    authorization server metadata.
+- id: oidc
+  name: OpenID Connect Discovery 1.0
+  conforms: true
+  evidence: >-
+    https://clerk.getbluma.com/.well-known/openid-configuration returns HTTP 200 with
+    id_token_signing_alg_values_supported [RS256], subject_types_supported [public] and a
+    jwks_uri that resolves (HTTP 200).
+- id: mcp
+  name: Model Context Protocol
+  conforms: partial
+  evidence: >-
+    A hosted MCP server responds at https://api.getbluma.com/api/mcp and implements the
+    MCP authorization spec correctly (RFC 9728 metadata + spec-shaped 401 challenge).
+    Protocol version and tool surface could not be verified because tools/list is
+    auth-gated (HTTP 401).
+- id: rfc9457
+  name: RFC 9457 / RFC 7807 Problem Details for HTTP APIs
+  conforms: false
+  claimed: true
+  evidence: >-
+    The docs state errors "follow RFC 7807", but the envelope nests type/title/status/
+    detail under an "error" key and is served as application/json, not
+    application/problem+json. A live anonymous call to
+    https://api.getbluma.com/api/v1/templates returned application/json with
+    {"error":"No authorization token provided"} — a bare string, not even Bluma's own
+    documented object. See errors/bluma-problem-types.yml.
+- id: openapi
+  name: OpenAPI Specification
+  conforms: unknown
+  evidence: >-
+    Bluma advertises a spec at https://api.getbluma.com/api/v1/openapi.json on its API
+    Reference Overview page and instructs users to import it into Postman/Insomnia/
+    Swagger UI, but the URL returns HTTP 401 to an anonymous request. The document could
+    not be retrieved, so neither its existence nor its version can be confirmed.
+- id: asyncapi
+  name: AsyncAPI
+  conforms: false
+  evidence: >-
+    A seven-event webhook catalog is documented in prose, but no AsyncAPI document is
+    published on any host and there is no public GitHub organization
+    (https://api.github.com/orgs/bluma returns 404).
+- id: idempotency
+  name: HTTP request idempotency (Idempotency-Key)
+  conforms: false
+  evidence: >-
+    No Idempotency-Key header or equivalent is documented anywhere. The only idempotency
+    discussed is consumer-side webhook deduplication on event_id.
+- id: pagination
+  name: Consistent pagination
+  conforms: true
+  evidence: >-
+    Documented limit/offset query parameters (limit max 100) with a `total` field on list
+    responses; both SDKs wrap it as iteration.
+    https://docs.getbluma.com/api-reference/overview
+- id: rate-limit-headers
+  name: IETF RateLimit header fields
+  conforms: false
+  evidence: >-
+    Bluma returns the legacy X-RateLimit-Limit / X-RateLimit-Remaining /
+    X-RateLimit-Reset trio plus Retry-After on 429, not the IETF draft
+    RateLimit / RateLimit-Policy fields.
+- id: rfc9116
+  name: RFC 9116 security.txt
+  conforms: false
+  evidence: >-
+    /.well-known/security.txt returns 401 on api.getbluma.com, 404 on docs.getbluma.com,
+    and a 13,073-byte SPA HTML shell on www.getbluma.com. No security.txt is served.
+- id: rfc8594
+  name: RFC 8594 Sunset header
+  conforms: false
+  evidence: No Sunset or Deprecation header and no deprecation policy is published.
+- id: a2a
+  name: A2A Agent Card
+  conforms: false
+  evidence: >-
+    /.well-known/agent-card.json and /.well-known/agent.json probed on
+    www.getbluma.com (200 SPA HTML shell — not a card), api.getbluma.com (401) and
+    docs.getbluma.com (404). No agent card is published.
+- id: hsts
+  name: HTTP Strict Transport Security with preload
+  conforms: true
+  evidence: >-
+    api.getbluma.com returns strict-transport-security: max-age=31536000;
+    includeSubDomains; preload, alongside x-content-type-options, x-frame-options: DENY,
+    a restrictive content-security-policy, referrer-policy and permissions-policy.
+compliance_programs:
+  published: false
+  certifications: []
+  trust_center: false
+  note: >-
+    No SOC 2, ISO 27001, PCI, HIPAA, GDPR or FedRAMP claim appears on any Bluma surface.
+    trust.getbluma.com does not resolve and www.getbluma.com/security is an SPA shell.
+    No Compliance pointer is emitted for this provider.
+summary:
+  conforms_count: 8
+  fails_count: 6
+  partial_count: 1
+  unknown_count: 1

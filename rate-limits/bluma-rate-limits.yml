@@ -1,0 +1,113 @@
+generated: '2026-08-12'
+method: searched
+source: >-
+  https://docs.getbluma.com/concepts/rate-limits ,
+  https://docs.getbluma.com/authentication ,
+  https://docs.getbluma.com/errors
+docs: https://docs.getbluma.com/concepts/rate-limits
+note: >-
+  Bluma documents rate limits unusually well for a company at its stage: per-tier
+  numbers, a named algorithm, the exact response headers, the 429 body, and the
+  exemptions. Limits are enforced PER API KEY, not per account, which the docs
+  explicitly present as a scaling lever. Headers are the legacy X-RateLimit-* family,
+  not the IETF draft RateLimit-* fields.
+algorithm: sliding window
+scope: per-api-key
+window: 1 hour
+limits:
+- scope: per-api-key
+  tier: Free
+  window: 1 hour
+  limit: 100
+  burst: 10
+  monthly_quota:
+    unit: videos
+    value: 10
+- scope: per-api-key
+  tier: Starter
+  window: 1 hour
+  limit: 1000
+  burst: 50
+  monthly_quota:
+    unit: videos
+    value: 100
+- scope: per-api-key
+  tier: Pro
+  window: 1 hour
+  limit: 5000
+  burst: 100
+  monthly_quota:
+    unit: videos
+    value: 500
+- scope: per-api-key
+  tier: Enterprise
+  window: 1 hour
+  limit: 50000
+  burst: 500
+  monthly_quota:
+    unit: videos
+    value: 3000
+    note: 3,000+ / custom
+headers:
+- name: X-RateLimit-Limit
+  description: Maximum requests allowed per hour for this key
+  example: '1000'
+  on: every response
+- name: X-RateLimit-Remaining
+  description: Requests remaining in the current sliding window
+  example: '987'
+  on: every response
+- name: X-RateLimit-Reset
+  description: Unix timestamp at which the limit resets
+  example: '1699127600'
+  on: every response
+- name: Retry-After
+  description: Seconds to wait before retrying
+  example: '3600'
+  on: 429 only
+exhaustion:
+  status: 429
+  error_type: rate_limit_exceeded
+  title: Rate Limit Exceeded
+  body_metadata:
+  - limit
+  - retry_after
+  - current_usage
+  links:
+  - https://docs.getbluma.com/concepts/rate-limits
+  - https://getbluma.com/billing
+exemptions:
+- webhook deliveries (server-initiated)
+- OAuth token refresh
+- health check endpoints
+counted:
+- all /v1/* endpoints, success or failure
+- the OpenAPI spec endpoint /v1/openapi.json
+testing:
+  supported: true
+  method: >-
+    Create a test-environment API key with an artificially low rate_limit_per_hour (e.g.
+    10) via POST /api/v1/api-keys, then exceed it to exercise backoff logic.
+  note: Test keys carry the same tier limits as production keys unless overridden.
+custom_limits:
+  available: true
+  tier: Enterprise
+  contact: sales@getbluma.com
+guidance_published:
+- exponential backoff with Retry-After
+- client-side request queue
+- monitoring X-RateLimit-Remaining and alerting above 75% / 90% consumption
+- caching stable resources (template list) to reduce call volume
+- separate API keys per service to isolate limits
+observed:
+  probed: false
+  reason: >-
+    Every /api/v1 endpoint returns 401 to an anonymous request and emits no
+    X-RateLimit-* headers, so published values could not be confirmed against a live
+    response.
+limit_count: 4
+gaps:
+- Uses X-RateLimit-* rather than the IETF RateLimit / RateLimit-Policy fields, so a
+  generic agent must special-case Bluma's header names.
+- No documented limit on concurrent in-flight video generations, which is the resource
+  that actually costs money and time here — only request-rate and monthly video counts.

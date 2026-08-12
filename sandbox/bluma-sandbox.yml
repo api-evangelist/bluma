@@ -1,0 +1,117 @@
+generated: '2026-08-12'
+method: searched
+source: >-
+  https://docs.getbluma.com/guides/test-vs-production , https://docs.getbluma.com/authentication ,
+  https://docs.getbluma.com/concepts/credits , https://docs.getbluma.com/concepts/rate-limits ,
+  https://docs.getbluma.com/concepts/webhooks
+docs: https://docs.getbluma.com/guides/test-vs-production
+note: >-
+  Bluma ships a genuine test environment implemented as a key-prefix mode on the same
+  base URL — no separate sandbox host, no separate account. Test keys are free and
+  unlimited, exercise the identical API surface, and fire real webhooks. Every value
+  below is published by Bluma; nothing has been invented.
+model: key-prefix mode switching
+separate_host: false
+base_url: https://api.getbluma.com/api/v1
+key_prefixes:
+- prefix: bluma_test_
+  mode: test
+  cost: free
+  credits_charged: false
+  keys_allowed: unlimited
+  available_on_plans:
+  - Free
+  - Starter
+  - Pro
+  - Enterprise
+- prefix: bluma_live_
+  mode: production
+  cost: credits charged per video
+  credits_charged: true
+  available_on_plans:
+  - Starter
+  - Pro
+  - Enterprise
+  note: Production keys require a paid plan.
+provisioning:
+  dashboard: https://app.getbluma.com/settings?tab=api
+  api:
+    operation: POST /api/v1/api-keys
+    auth: session token
+    body:
+      name: string
+      environment: test | production
+      rate_limit_per_hour: integer (optional)
+    response_fields:
+    - id
+    - key
+    - name
+    - environment
+    - created_at
+    warning: The secret is displayed exactly once.
+test_mode_behavior:
+  api_parity: 100% identical surface and semantics
+  video_quality:
+    max_resolution: 720p
+    note: Requests for 1080p or 4K are downgraded in test mode.
+    bitrate: reduced
+    fps: 24 (vs 30 in production)
+  watermark: 'TEST MODE overlay burned into every render'
+  processing_priority: low (slower than production)
+  credits: not consumed
+  rate_limits: same as the account tier
+  webhooks: fully functional
+  restrictions:
+  - no custom branding
+  - no priority support
+  - no SLA
+fixtures:
+  test_templates:
+  - id: consumerclub-discord-zoomed
+    name: ConsumerClub Discord Zoomed
+    category: entertainment
+    credits_per_video: 5
+  - id: cat-explainer-v2
+    name: Cat Explainer V2
+    category: educational
+    credits_per_video: 5
+  - id: rick-morty-explainer
+    name: Rick & Morty Meme Explainer
+    category: entertainment
+    credits_per_video: 5
+  - id: steel-griffin-explainer
+    name: Steel Griffin Explainer
+    category: educational
+    credits_per_video: 5
+  note: >-
+    These are the four templates Bluma's own quickstart returns from GET /v1/templates.
+    They are production templates usable in test mode, not synthetic fixtures.
+triggers:
+- scenario: rate limit / 429 backoff
+  method: >-
+    Create a test key with an artificially low rate_limit_per_hour (the docs use 10) via
+    POST /api/v1/api-keys, then exceed it.
+  source: https://docs.getbluma.com/concepts/rate-limits
+- scenario: webhook delivery
+  method: Point a webhook at webhook.site, or tunnel a local endpoint with ngrok.
+  source: https://docs.getbluma.com/concepts/webhooks
+- scenario: insufficient credits (402)
+  method: >-
+    Exhaust a Free-tier allowance with production keys; Free tier permits no overage and
+    fails with 402.
+  source: https://docs.getbluma.com/concepts/credits
+time_simulation:
+  supported: false
+  note: No test clock or time-travel facility is documented.
+test_credentials_published: false
+test_credentials_note: >-
+  No shareable test API key, magic identifier, or hosted playground token is published —
+  a caller must create an account to obtain even a test key. There is also no interactive
+  API console or "try it" widget on docs.getbluma.com.
+promotion_checklist_published: true
+promotion_checklist_url: https://docs.getbluma.com/guides/test-vs-production
+gaps:
+- No hosted console, playground, or interactive request builder — evaluation requires
+  signup.
+- No published sandbox credential, so an agent cannot exercise a single call anonymously.
+- No time simulation, so scheduled/daily-delivery behavior cannot be tested end to end.

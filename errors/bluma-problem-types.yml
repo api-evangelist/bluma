@@ -1,0 +1,220 @@
+generated: '2026-08-12'
+method: searched
+source: >-
+  https://docs.getbluma.com/errors , https://docs.getbluma.com/authentication ,
+  https://docs.getbluma.com/api-reference/overview ,
+  https://docs.getbluma.com/concepts/rate-limits
+docs: https://docs.getbluma.com/errors
+format: custom-json
+format_claimed: rfc7807
+format_note: >-
+  Bluma's documentation states errors "follow RFC 7807 (Problem Details for HTTP APIs)".
+  They do not. RFC 7807 (and its successor RFC 9457) put type / title / status / detail
+  at the TOP LEVEL of the response body and serve it as application/problem+json.
+  Bluma nests the whole thing under an "error" key and serves application/json —
+  confirmed live: an anonymous GET to https://api.getbluma.com/api/v1/templates returns
+  content-type application/json with body {"error":"No authorization token provided"},
+  which is not even Bluma's own documented envelope. Generic RFC 9457 client tooling
+  will not parse these. Recorded here as its own shape, not as problem+json.
+envelope:
+  root_key: error
+  content_type: application/json
+  fields:
+  - name: type
+    description: Stable machine-readable error identifier
+    required: true
+  - name: title
+    description: Human-readable summary
+    required: true
+  - name: status
+    description: HTTP status code, repeated in the body
+    required: true
+  - name: detail
+    description: Specific explanation of what went wrong
+    required: true
+  - name: request_id
+    description: Correlation id (req_ prefix) to quote in support requests
+    required: false
+  - name: timestamp
+    description: ISO 8601 time the error was produced
+    required: false
+  - name: metadata
+    description: Error-type-specific context object
+    required: false
+  - name: validation_errors
+    description: Array of {field, message} — present on invalid_request only
+    required: false
+  - name: links
+    description: Object of related URLs (docs, support, upgrade, manage_keys)
+    required: false
+observed_divergent_envelope:
+  probed: '2026-08-12'
+  url: https://api.getbluma.com/api/v1/templates
+  status: 401
+  body: '{"error":"No authorization token provided"}'
+  note: >-
+    On the unauthenticated edge, "error" is a bare STRING, not the documented object.
+    A client written against the documented shape will throw on error.error.type.
+status_codes:
+- status: 200
+  meaning: Success
+- status: 201
+  meaning: Created
+- status: 202
+  meaning: Accepted — async operation queued
+- status: 400
+  meaning: Bad Request — invalid request data
+- status: 401
+  meaning: Unauthorized — missing or invalid API key
+- status: 402
+  meaning: Payment Required — insufficient credits
+- status: 403
+  meaning: Forbidden — API key lacks permission
+- status: 404
+  meaning: Not Found
+- status: 429
+  meaning: Too Many Requests — rate limit exceeded
+- status: 500
+  meaning: Internal Server Error
+- status: 503
+  meaning: Service Unavailable
+problem_types:
+- type: authentication_error
+  title: Authentication Required
+  status: 401
+  detail: >-
+    Valid API key required. Include it in the Authorization header as 'Bearer YOUR_API_KEY'.
+  cause: No Authorization header sent
+  remediation: Send the key as an Authorization bearer token.
+  retryable: false
+  links:
+    docs: https://docs.getbluma.com/authentication
+- type: authentication_error
+  title: Invalid API Key
+  status: 401
+  detail: The API key provided is invalid or has been revoked.
+  cause: Key does not exist, is malformed, or was revoked
+  remediation: Verify the key; check for typos, whitespace, or a revoked/rotated key.
+  metadata:
+  - key_prefix
+  retryable: false
+  links:
+    docs: https://docs.getbluma.com/authentication
+    manage_keys: https://app.getbluma.com/settings?tab=api
+- type: permission_denied
+  title: Insufficient Permissions
+  status: 403
+  detail: This API key does not have the required scope to perform this action.
+  cause: Key scope set does not include the operation's required scope
+  remediation: Create a key carrying the required scope, or use one that already has it.
+  metadata:
+  - required_scope
+  - available_scopes
+  retryable: false
+- type: insufficient_credits
+  title: Insufficient Credits
+  status: 402
+  detail: 'You have N credits, but M are required for this video generation.'
+  cause: Credit balance below the cost of the requested render
+  remediation: >-
+    Buy credits or upgrade the plan; or reduce resolution/duration, or pick a cheaper
+    template.
+  metadata:
+  - credits_required
+  - credits_available
+  - credit_cost_breakdown
+  retryable: false
+  links:
+    docs: https://docs.getbluma.com/concepts/credits
+    upgrade: https://getbluma.com/billing
+- type: invalid_request
+  title: Validation Error
+  status: 400
+  detail: Request body contains validation errors.
+  cause: Missing required fields or values failing field constraints
+  remediation: Iterate validation_errors[] and correct each named field.
+  extra_field: validation_errors
+  retryable: false
+- type: not_found
+  title: Resource Not Found
+  status: 404
+  detail: "Video with ID 'batch_xyz789' not found."
+  cause: Wrong id, resource owned by another account, or deleted
+  remediation: Verify the id and that it belongs to the calling account.
+  metadata:
+  - resource_type
+  - resource_id
+  retryable: false
+- type: rate_limit_exceeded
+  title: Rate Limit Exceeded
+  status: 429
+  detail: You have exceeded the rate limit of 1,000 requests per hour.
+  cause: Sliding-window request budget for this key exhausted
+  remediation: Honor Retry-After, apply exponential backoff, or raise the tier.
+  metadata:
+  - limit
+  - retry_after
+  - current_usage
+  retryable: true
+  retry_signal: Retry-After header (seconds)
+  links:
+    docs: https://docs.getbluma.com/concepts/rate-limits
+    upgrade: https://getbluma.com/billing
+- type: internal_error
+  title: Internal Server Error
+  status: 500
+  detail: An unexpected error occurred. Our team has been notified.
+  cause: Server-side fault
+  remediation: >-
+    Retry with exponential backoff; escalate to stephen@getbluma.com quoting request_id.
+  retryable: true
+  links:
+    support: mailto:stephen@getbluma.com
+- type: service_unavailable
+  title: Service Temporarily Unavailable
+  status: 503
+  detail: The service is temporarily unavailable due to maintenance.
+  cause: Planned or unplanned outage
+  remediation: Wait metadata.retry_after seconds and retry with backoff.
+  metadata:
+  - retry_after
+  retryable: true
+- type: rendering_failed
+  title: Video Rendering Failed
+  status: null
+  delivery: webhook
+  detail: Video rendering failed due to invalid asset URL.
+  cause: Asynchronous render failure after the job was accepted
+  remediation: >-
+    Correct the offending asset/context and resubmit. Credits are refunded automatically
+    on server-side render failure.
+  note: >-
+    Delivered as a video.failed webhook event body, not as an HTTP response — the job
+    was already accepted with 202. See asyncapi/bluma-webhooks.yml.
+retry_guidance:
+  published: true
+  strategy: exponential backoff
+  retry_on:
+  - 429 (honor Retry-After)
+  - 5xx
+  do_not_retry_on:
+  - 400
+  - 401
+  - 402
+  - 403
+  - 404
+correlation:
+  field: request_id
+  prefix: req_
+  guidance: Log request_id from every error response and quote it in support requests.
+  note: >-
+    request_id is documented only on 500-class errors; it is not stated to be present on
+    4xx responses, and no request-id request/response header is documented.
+error_count: 10
+gaps:
+- Claims RFC 7807 conformance but does not implement it (nested envelope,
+  application/json, no problem+json media type).
+- The live unauthenticated edge returns a different, simpler error shape than the
+  documented one.
+- No stable numeric or namespaced error-code registry beyond the type strings; several
+  distinct conditions share the type authentication_error.

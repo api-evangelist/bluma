@@ -1,0 +1,108 @@
+generated: '2026-08-12'
+method: searched
+source: >-
+  https://docs.getbluma.com/sdks/overview plus registry metadata read from
+  registry.npmjs.org and pypi.org on 2026-08-12
+note: >-
+  Bluma publishes two first-party SDKs and names both on its SDK overview page.
+  Both are stalled at 1.2.0 released 2025-11-13 — nine months before this probe — and
+  both point their repository/bugs metadata at github.com/bluma/bluma-typescript and
+  github.com/bluma/bluma-python, which return 404 (no such GitHub org). The npm package
+  is also published under a personal scope (@stephen_turtles, maintainer
+  stephenni1234@gmail.com — Bluma co-founder Stephen Ni) rather than a company scope,
+  and both packages' homepage/documentation URLs point at docs.bluma.app, a hostname
+  that does not resolve; the live docs are at docs.getbluma.com.
+packages:
+- language: javascript
+  name: '@stephen_turtles/bluma-sdk'
+  registry: npm
+  official: true
+  url: https://www.npmjs.com/package/@stephen_turtles/bluma-sdk
+  version: 1.2.0
+  published: '2025-11-13'
+  first_published: '2025-11-04'
+  license: MIT
+  install: npm install @stephen_turtles/bluma-sdk
+  description: Official TypeScript/Node.js SDK for the Bluma API
+  engines: node >=18.0.0
+  repository: https://github.com/bluma/bluma-typescript
+  repository_status: 404
+  homepage_declared: https://docs.bluma.app/sdks/typescript
+  homepage_status: unresolvable
+  releases:
+  - version: 1.0.0
+    published: '2025-11-04'
+  - version: 1.1.0
+    published: '2025-11-13'
+  - version: 1.2.0
+    published: '2025-11-13'
+  features:
+  - typed client (index.d.ts shipped)
+  - automatic retries with exponential backoff (maxRetries, retryDelay)
+  - webhook signature verification (Bluma.webhooks.verify)
+  - async iteration over paginated list endpoints
+  - structured error classes (BlumaError, RateLimitError, InsufficientCreditsError)
+  note: >-
+    Published under a personal npm scope, not a Bluma-owned org scope. First-party is
+    asserted by Bluma's own SDK overview page, which prints this exact install command,
+    and by the package author field ("Bluma").
+- language: python
+  name: bluma
+  registry: pypi
+  official: true
+  url: https://pypi.org/project/bluma/
+  version: 1.2.0
+  published: '2025-11-13'
+  first_published: '2025-11-04'
+  install: pip install bluma
+  extras:
+  - name: async
+    install: pip install bluma[async]
+  description: Official Python SDK for the Bluma API
+  repository: https://github.com/bluma/bluma-python
+  repository_status: 404
+  homepage_declared: https://bluma.app
+  homepage_status: unresolvable
+  releases:
+  - version: 1.0.0
+    published: '2025-11-04'
+  - version: 1.2.0
+    published: '2025-11-13'
+  features:
+  - type hints (Video, Template, VideoStatus)
+  - sync + async clients
+  - webhook signature verification (Bluma.webhooks.verify)
+  - iteration over paginated list endpoints
+  - structured exceptions (BlumaError, RateLimitError, InsufficientCreditsError)
+registries_checked:
+- registry: npm
+  result: 1 first-party package
+- registry: pypi
+  result: 1 first-party package
+- registry: rubygems
+  result: none
+- registry: crates.io
+  result: none
+- registry: packagist
+  result: none
+- registry: nuget
+  result: none
+- registry: maven-central
+  result: none
+- registry: pkg.go.dev
+  result: none
+planned:
+- feature: streaming
+  status: coming soon
+  languages:
+  - typescript
+  - python
+  source: https://docs.getbluma.com/sdks/overview
+summary:
+  package_count: 2
+  official_count: 2
+  languages:
+  - javascript
+  - python
+  latest_release: '2025-11-13'
+  source_repositories_public: false

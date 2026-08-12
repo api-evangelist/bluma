@@ -1,0 +1,144 @@
+# Bluma - Automated Video Content Creation Platform
+
+## About Bluma
+Bluma is an AI-powered video generation platform that helps businesses create UGC (User-Generated Content) and faceless videos at scale. We clone viral video formats into daily content that can be distributed across multiple social media accounts. Bluma helps founders and marketers automate daily UGC and faceless video creation to post across multiple accounts.
+
+## Key Pages
+- Homepage: https://getbluma.com/
+- Pricing: https://getbluma.com/#pricing
+- FAQ: https://getbluma.com/#faq
+- Terms of Service: https://getbluma.com/terms
+- Privacy Policy: https://getbluma.com/privacy
+
+## Core Features
+- **AI Video Templates**: Library of proven viral video formats ready to customize
+- **UGC Video Generator**: Create authentic user-generated content at scale
+- **Faceless Video Creator**: Generate engaging videos without showing faces
+- **Character Voices & Avatars**: AI-powered voices and digital avatars
+- **Daily Content Automation**: Automatic video generation and delivery
+- **Multi-Account Management**: Post to multiple TikTok/Instagram accounts
+- **Custom Template Creation**: Clone any viral video into a reusable template
+- **Brand Asset Integration**: Seamlessly incorporate your brand assets
+- **Batch Video Creation**: Generate multiple videos simultaneously
+- **A/B Testing & Optimization**: Test different variations for best performance
+
+## Use Cases
+
+### Organic Content (B2C)
+- UGC-style videos for TikTok and Instagram
+- Daily organic content at scale
+- Multiple product lines and accounts
+- Consistent brand voice across platforms
+
+### Paid Ads (B2B)
+- Real and AI-generated assets in editing templates
+- Meta ads and TikTok campaigns
+- A/B testing creative variants
+- Performance-optimized content
+
+## Industries We Serve
+- E-Commerce
+- SaaS
+- Direct-to-Consumer
+- Dropshipping
+- Marketing Agencies
+- Content Creators
+- Beauty & Skincare
+- Food & Beverage
+- Fashion
+- Tech Startups
+
+## Solutions
+- UGC Content for TikTok
+- Instagram Reels Automation
+- YouTube Shorts Creator
+- Faceless Video Content
+- Multi-Account Posting
+- Product Demo Videos
+- Viral Format Cloning
+- Organic Video Marketing
+- Daily Content Delivery
+
+## How It Works
+1. **Copy videos into templates**: Choose a viral video format and turn it into a reusable template
+2. **Describe your edits**: Tell us what customizations you need while maintaining creative control
+3. **Define template script topics**: Set content topics and messaging themes for unique videos
+4. **Import or generate assets**: Upload brand assets or let AI generate fresh visuals
+5. **Automatically generate daily videos**: Templates produce fresh videos daily with automated distribution
+
+## Pricing Plans
+
+### Business Plan
+- Library of proven templates
+- UGC and faceless videos
+- Character voices and avatars
+- Daily video delivery
+- Guided onboarding
+- Best for: Startups and marketers launching content with ready-made viral formats
+
+### Enterprise Plan
+- Everything in Business, plus:
+- Multi-account management
+- Custom templates from viral videos
+- Custom video formats (cinematic, 2D, 3D)
+- Integrated product visuals
+- Automatic posting
+- A/B testing and optimization
+- 1:1 Slack support
+- Best for: Teams managing multiple brands, markets, or channels
+
+## Why Choose Bluma Over Alternatives
+
+### vs. Content Agencies
+✓ Set and forget automated content
+✓ Full creative control over your videos
+✓ Videos delivered straight to your inbox
+✓ Flat-rate pricing with no hidden costs
+
+### vs. UGC Creators/Clippers
+✓ No sourcing high quality talent
+✓ No CPM charges per video
+✓ No manual labor for every video
+✓ Infinitely scalable
+
+## Frequently Asked Questions
+
+**What is Bluma?**
+We clone viral formats into daily UGC and faceless videos that you can distribute across multiple accounts.
+
+**What is a template?**
+A reusable video structure modeled on a viral video where your content slots into a proven framework.
+
+**How is it different from a regular video?**
+Templates automate the repetitive work—one structure generates unlimited unique videos with different inputs.
+
+**What differentiates Bluma from other AI tools?**
+Traditional tools make 1-to-1 videos while Bluma makes 1-to-N, scaling one template into daily videos on autopilot.
+
+**Do templates ever go stale?**
+Trends change, but our tech allows us to constantly make new templates to stay on top of new formats.
+
+**Can I customize the videos?**
+Business users choose from our template library while Enterprise gets fully custom templates cloned from any viral videos.
+
+**What types of assets do you use?**
+A mix of AI-generated and real clips including images, voices, product footage, stock clips, and screenshots—whatever fits your brand.
+
+**Do I need video editing experience?**
+No. Business users get ready-to-post videos while Enterprise users get automatic posting across all their accounts.
+
+## Company Information
+- Company: Bluma
+- Backed by: Y Combinator
+- Founded: 2024
+- Website: https://getbluma.com
+- Discord: https://discord.gg/cZGXY4nrFZ
+- LinkedIn: https://www.linkedin.com/company/bluma-ai/
+- Twitter/X: https://x.com/getbluma
+
+## Contact
+To learn more about our services: https://getbluma.com/
+For support and community: https://discord.gg/cZGXY4nrFZ
+
+## Keywords
+AI video generation, UGC videos, faceless videos, TikTok automation, Instagram Reels automation, content automation, viral video templates, multi-account posting, social media automation, video marketing automation, AI content creation, automated video content, daily video generation, content scaling, B2C video marketing, B2B video ads

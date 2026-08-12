@@ -1,0 +1,1 @@
+{"resource":"https://api.getbluma.com/api/mcp","authorization_servers":["https://clerk.getbluma.com"],"bearer_methods_supported":["header"],"scopes_supported":["email","profile","offline_access"]}

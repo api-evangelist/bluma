@@ -1,0 +1,81 @@
+generated: '2026-08-12'
+method: probed
+source: >-
+  https://api.getbluma.com/.well-known/oauth-protected-resource (200) and a live
+  tools/list POST to https://api.getbluma.com/api/mcp (401) on 2026-08-12
+note: >-
+  Bluma runs a real, hosted MCP server. It is not advertised anywhere in the developer
+  documentation — it was found only by probing RFC 9728 protected-resource metadata on
+  the API host root. The server itself is auth-gated: an anonymous tools/list returns
+  401 with a spec-correct WWW-Authenticate challenge pointing back at the metadata
+  document, so the live tool set and its inputSchemas cannot be read without an
+  authenticated OAuth session. NO TOOL LIST IS RECORDED HERE, because none was
+  observed — Bluma's llms.txt is a marketing document and carries no tool names to fall
+  back on, and inventing tools from the REST reference would be fabrication.
+servers:
+- name: Bluma MCP
+  url: https://api.getbluma.com/api/mcp
+  transport: streamable-http
+  hosted: true
+  official: true
+  status: gated
+  discovery:
+    method: RFC 9728 OAuth 2.0 Protected Resource Metadata
+    url: https://api.getbluma.com/.well-known/oauth-protected-resource
+    http_status: 200
+    advertised_in_docs: false
+  authentication:
+    required: true
+    scheme: OAuth 2.1 bearer
+    bearer_methods_supported:
+    - header
+    authorization_servers:
+    - https://clerk.getbluma.com
+    provider: Clerk
+    scopes_supported:
+    - email
+    - profile
+    - offline_access
+    dynamic_client_registration: true
+    registration_endpoint: https://clerk.getbluma.com/oauth/register
+    authorization_endpoint: https://clerk.getbluma.com/oauth/authorize
+    token_endpoint: https://clerk.getbluma.com/oauth/token
+    revocation_endpoint: https://clerk.getbluma.com/oauth/token/revoke
+    pkce: true
+    code_challenge_methods_supported:
+    - S256
+    grant_types_supported:
+    - authorization_code
+    - refresh_token
+  probe:
+    method: POST
+    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+    accept: application/json, text/event-stream
+    http_status: 401
+    www_authenticate: >-
+      Bearer resource_metadata="https://api.getbluma.com/.well-known/oauth-protected-resource"
+    response_body: >-
+      {"error":{"code":"unauthorized","message":"Authentication is required to connect to MCP"}}
+tools: []
+tools_status: >-
+  UNKNOWN — auth-gated. The live tool set requires an authenticated OAuth introspection
+  and was not observed. No candidate list has been derived: Bluma publishes no OpenAPI
+  that a candidate list could be grounded in (its advertised spec at
+  https://api.getbluma.com/api/v1/openapi.json is itself 401-gated).
+strengths:
+- Anonymous RFC 9728 protected-resource metadata — an agent can discover the server and
+  its authorization requirements without credentials.
+- Spec-correct 401 with a WWW-Authenticate resource_metadata pointer, which is what lets
+  a compliant MCP client bootstrap the OAuth flow automatically.
+- Dynamic client registration is open, so an agent can self-register rather than needing
+  a pre-provisioned client_id.
+- PKCE S256 and refresh_token grants supported.
+gaps:
+- The MCP server is undocumented — it appears in no page of docs.getbluma.com. A
+  capability nobody is told about is a capability nobody uses.
+- tools/list is fully gated, so no agent can evaluate the tool surface before
+  authenticating.
+- The OAuth scopes exposed to MCP clients (email, profile, offline_access) are identity
+  scopes only; they do not map to the product scopes the REST API documents
+  (videos:create, videos:read, templates:list, ...), so an MCP token's authority over
+  Bluma resources is not describable from published metadata.

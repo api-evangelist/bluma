@@ -1,0 +1,72 @@
+generated: '2026-08-12'
+method: generated
+source: >-
+  Authored from https://docs.getbluma.com/ (quickstart, authentication, errors,
+  concepts/templates, concepts/credits, concepts/webhooks, concepts/rate-limits,
+  guides/test-vs-production).
+grounding: >-
+  Bluma publishes no readable OpenAPI — the spec it advertises at
+  https://api.getbluma.com/api/v1/openapi.json returns HTTP 401 — so these skills
+  identify operations by HTTP method and path rather than by operationId. Every path,
+  field name, status code, scope, id prefix, header and published value used in these
+  skills is copied verbatim from Bluma's own documentation. Nothing is inferred and
+  nothing is invented.
+api: Bluma API v1
+base_url: https://api.getbluma.com/api/v1
+skills:
+- name: bluma-generate-video
+  file: bluma-generate-video.md
+  description: >-
+    Pick a template, submit a generation job, track it to completion, and fetch the
+    signed download URL before it expires.
+  operations:
+  - GET /v1/templates
+  - GET /v1/templates/{id}
+  - POST /v1/videos
+  - GET /v1/videos/{id}
+  - GET /v1/videos/{id}/download
+  - GET /v1/credits/balance
+  scopes:
+  - templates:list
+  - templates:read
+  - videos:create
+  - videos:read
+  - videos:download
+  - credits:read
+- name: bluma-handle-webhooks
+  file: bluma-handle-webhooks.md
+  description: >-
+    Register a webhook, verify the HMAC-SHA256 signature, deduplicate on event_id, and
+    react to the seven published video and credit events.
+  operations:
+  - POST /v1/webhooks
+  - GET /v1/webhooks
+  - DELETE /v1/webhooks/{id}
+  - GET /v1/webhooks/{id}/deliveries
+  scopes:
+  - webhooks:manage
+- name: bluma-manage-api-keys
+  file: bluma-manage-api-keys.md
+  description: >-
+    Create, list, rotate (30-day grace) and revoke API keys, and move an integration from
+    test to production.
+  operations:
+  - POST /v1/api-keys
+  - GET /v1/api-keys
+  - POST /v1/api-keys/{id}/rotate
+  - DELETE /v1/api-keys/{id}
+  scopes: []
+skill_count: 3
+cross_references:
+- authentication/bluma-authentication.yml
+- scopes/bluma-scopes.yml
+- conventions/bluma-conventions.yml
+- errors/bluma-problem-types.yml
+- rate-limits/bluma-rate-limits.yml
+- asyncapi/bluma-webhooks.yml
+- sandbox/bluma-sandbox.yml
+- data-model/bluma-data-model.yml
+provider_published_skills: false
+provider_published_skills_note: >-
+  No AGENTS.md, skills/ directory, or provider-published agent skill was found on any
+  Bluma host, and no public GitHub organization exists (github.com/bluma returns 404).

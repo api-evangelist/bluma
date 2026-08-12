@@ -1,0 +1,146 @@
+generated: '2026-08-12'
+method: searched
+source: >-
+  https://docs.getbluma.com/authentication ,
+  https://docs.getbluma.com/api-reference/overview ,
+  https://api.getbluma.com/.well-known/oauth-protected-resource ,
+  https://clerk.getbluma.com/.well-known/oauth-authorization-server
+docs: https://docs.getbluma.com/authentication
+note: >-
+  Bluma runs two independent authentication models against the same API host. The REST
+  API at /api/v1 uses long-lived prefixed API keys presented as HTTP bearer tokens; the
+  MCP server at /api/mcp uses OAuth 2.1 delegated to Clerk. There is no published
+  OpenAPI securitySchemes block to derive from — the advertised spec at
+  /api/v1/openapi.json returns 401 — so this profile is read from the documentation and
+  from live anonymous metadata probes.
+schemes:
+- id: api_key_bearer
+  type: http
+  scheme: bearer
+  applies_to: REST API (https://api.getbluma.com/api/v1)
+  header: Authorization
+  format: 'Bearer <api_key>'
+  key_prefixes:
+  - prefix: bluma_test_
+    environment: test
+    behavior: >-
+      Watermarked, lower-quality (720p max, 24fps) renders; consumes no credits;
+      unlimited keys; same rate limit as the account tier.
+  - prefix: bluma_live_
+    environment: production
+    behavior: Full-quality renders up to 4K, no watermark, credits charged, priority processing.
+  scoped: true
+  scopes_source: scopes/bluma-scopes.yml
+  issuance:
+  - channel: dashboard
+    url: https://app.getbluma.com/settings?tab=api
+    note: Create API Key; the secret is displayed exactly once.
+  - channel: api
+    operation: POST /api/v1/api-keys
+    note: >-
+      Requires an existing session token, not an API key. Accepts name, environment
+      (test|production) and rate_limit_per_hour.
+  rotation:
+    supported: true
+    operation: POST /api/v1/api-keys/{id}/rotate
+    behavior: >-
+      Issues a new key and schedules the old key to expire in 30 days, enabling
+      zero-downtime rotation.
+    recommended_interval: 90 days
+  revocation:
+    supported: true
+    operation: DELETE /api/v1/api-keys/{id}
+    behavior: Immediate; all requests using that key stop.
+  listing:
+    supported: true
+    operation: GET /api/v1/api-keys
+    behavior: Returns keys with a truncated prefix; never re-exposes the full secret.
+  failure_modes:
+  - status: 401
+    type: authentication_error
+    title: Authentication Required
+    cause: Missing API key
+  - status: 401
+    type: authentication_error
+    title: Invalid API Key
+    cause: Key is invalid or revoked; response metadata echoes the key_prefix
+  - status: 403
+    type: permission_denied
+    title: Insufficient Permissions
+    cause: >-
+      Key lacks the required scope; response metadata names required_scope and
+      available_scopes
+- id: oauth2_clerk
+  type: oauth2
+  applies_to: MCP server (https://api.getbluma.com/api/mcp)
+  flows:
+    authorizationCode:
+      authorizationUrl: https://clerk.getbluma.com/oauth/authorize
+      tokenUrl: https://clerk.getbluma.com/oauth/token
+      refreshUrl: https://clerk.getbluma.com/oauth/token
+      scopes:
+        email: Access the user's email address
+        profile: Access the user's basic profile
+        offline_access: Issue a refresh token for long-lived agent sessions
+  issuer: https://clerk.getbluma.com
+  identity_provider: Clerk
+  pkce_required_methods:
+  - S256
+  dynamic_client_registration:
+    supported: true
+    endpoint: https://clerk.getbluma.com/oauth/register
+  revocation_endpoint: https://clerk.getbluma.com/oauth/token/revoke
+  jwks_uri: https://clerk.getbluma.com/.well-known/jwks.json
+  id_token_signing_alg_values_supported:
+  - RS256
+  token_endpoint_auth_methods_supported:
+  - client_secret_basic
+  - client_secret_post
+  - none
+  discovery:
+  - spec: RFC 9728 Protected Resource Metadata
+    url: https://api.getbluma.com/.well-known/oauth-protected-resource
+    status: 200
+  - spec: RFC 8414 Authorization Server Metadata
+    url: https://clerk.getbluma.com/.well-known/oauth-authorization-server
+    status: 200
+  - spec: OpenID Connect Discovery 1.0
+    url: https://clerk.getbluma.com/.well-known/openid-configuration
+    status: 200
+  documented_in_provider_docs: false
+- id: session_token
+  type: http
+  scheme: bearer
+  applies_to: API key management operations (POST/GET/DELETE /api/v1/api-keys)
+  note: >-
+    The docs show these operations authenticated with "YOUR_SESSION_TOKEN" rather than an
+    API key, implying a dashboard session credential. The docs never define how a session
+    token is obtained outside the dashboard, which makes fully programmatic key
+    provisioning undocumented.
+  documented_issuance: false
+webhook_authentication:
+  direction: inbound-to-consumer
+  scheme: HMAC-SHA256
+  header: X-Bluma-Signature
+  format: 'sha256=<hex digest>'
+  signed_payload: raw request body
+  secret_issuance: >-
+    Returned once in the POST /api/v1/webhooks response as a whsec_-prefixed secret.
+  helper: Bluma.webhooks.verify() in both the TypeScript and Python SDKs
+  additional_headers:
+  - X-Bluma-Event-Id
+  - X-Bluma-Event-Type
+  - 'User-Agent: Bluma-Webhooks/1.0'
+transport_security:
+  https_required: true
+  hsts: true
+  hsts_max_age: 31536000
+  hsts_preload: true
+gaps:
+- No mTLS, no openIdConnect scheme on the REST surface, no short-lived token exchange —
+  the REST API is long-lived-static-secret only.
+- The OAuth scopes exposed to MCP clients are identity scopes (email, profile,
+  offline_access) and do not correspond to the REST product scopes, so what an MCP token
+  is authorized to do inside Bluma is not stated anywhere public.
+- Session-token issuance is referenced but never documented, so API key lifecycle cannot
+  be fully automated from the published material.

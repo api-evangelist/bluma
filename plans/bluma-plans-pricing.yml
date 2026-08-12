@@ -1,0 +1,157 @@
+generated: '2026-08-12'
+method: searched
+source: >-
+  https://docs.getbluma.com/concepts/credits ,
+  https://docs.getbluma.com/concepts/rate-limits ,
+  https://www.getbluma.com/llms.txt
+docs: https://docs.getbluma.com/concepts/credits
+note: >-
+  Bluma publishes TWO inconsistent plan surfaces. The developer documentation names four
+  priced developer tiers (Free / Starter $29 / Pro $99 / Enterprise custom) with concrete
+  quotas and rate limits. The marketing llms.txt names two unpriced commercial plans
+  (Business / Enterprise) with a different feature split and no numbers at all. The
+  marketing site's own /pricing route is a single-page-app shell that returns the same
+  13,073-byte HTML as every other path, so no price is machine-readable there. Both
+  surfaces are recorded below as published; the developer tiers are the priced ones.
+currency: USD
+billing_period: monthly
+unit: credits
+unit_note: >-
+  All templates and user-created template variants cost a flat 5 credits per video
+  (documented as equivalent to $5 USD). An older section of the same credits page also
+  publishes a multiplier formula (base x duration x resolution x AI multiplier) with a
+  720p/1080p/4K resolution ladder — the two costing models are not reconciled in Bluma's
+  own docs.
+plans:
+- name: Free
+  surface: developer-docs
+  price: 0
+  currency: USD
+  period: monthly
+  included:
+    videos_per_month: 10
+    credits_equivalent: 20
+    requests_per_hour: 100
+    burst: 10
+  features:
+  - test mode available
+  - community support
+  - watermarked videos
+  overage:
+    allowed: false
+    behavior: Requests fail with HTTP 402 insufficient_credits; must upgrade to continue.
+- name: Starter
+  surface: developer-docs
+  price: 29
+  currency: USD
+  period: monthly
+  included:
+    videos_per_month: 100
+    credits_equivalent: 200
+    requests_per_hour: 1000
+    burst: 50
+  features:
+  - full-quality videos
+  - no watermarks
+  - email support
+  overage:
+    allowed: true
+    rate: 0.50
+    unit: per video
+    billed: month-end
+    hard_limit: false
+- name: Pro
+  surface: developer-docs
+  price: 99
+  currency: USD
+  period: monthly
+  included:
+    videos_per_month: 500
+    credits_equivalent: 1000
+    requests_per_hour: 5000
+    burst: 100
+  features:
+  - priority rendering
+  - priority support
+  - custom branding
+  overage:
+    allowed: true
+    rate: 0.50
+    unit: per video
+    billed: month-end
+    hard_limit: false
+- name: Enterprise
+  surface: developer-docs
+  price: null
+  price_model: custom
+  currency: USD
+  period: monthly
+  included:
+    videos_per_month: 3000
+    videos_per_month_note: 3,000+
+    credits_equivalent: 6000
+    requests_per_hour: 50000
+    burst: 500
+  features:
+  - dedicated support
+  - custom templates
+  - custom rate limits
+  - SLA guarantee
+  - white-label support
+  contact: sales@getbluma.com
+- name: Business
+  surface: marketing-llms-txt
+  price: null
+  price_model: undisclosed
+  features:
+  - library of proven templates
+  - UGC and faceless videos
+  - character voices and avatars
+  - daily video delivery
+  - guided onboarding
+  positioning: Startups and marketers launching content with ready-made viral formats
+- name: Enterprise (marketing)
+  surface: marketing-llms-txt
+  price: null
+  price_model: undisclosed
+  features:
+  - everything in Business
+  - multi-account management
+  - custom templates cloned from viral videos
+  - custom video formats (cinematic, 2D, 3D)
+  - integrated product visuals
+  - automatic posting
+  - A/B testing and optimization
+  - 1:1 Slack support
+  positioning: Teams managing multiple brands, markets, or channels
+credit_policy:
+  expiry: purchased credits never expire; monthly allowance resets on the billing date
+  top_up: credit packs purchasable at getbluma.com/billing
+  downgrade: remaining credits retained; allowance resets to the new tier next cycle
+  refunds_automatic:
+  - server-side generation failure
+  - template rendering errors
+  - invalid input caught before processing
+  refunds_manual_contact: support@getbluma.com
+  refunds_excluded:
+  - user errors in prompts or inputs
+  - content violating terms of service
+  - successfully generated videos that did not meet expectations
+test_mode:
+  free: true
+  credits_charged: false
+  limits:
+  - 720p maximum
+  - TEST MODE watermark
+  - lower bitrate, 24fps
+  - low-priority processing
+billing_url: https://getbluma.com/billing
+plan_count: 6
+priced_plan_count: 2
+gaps:
+- The marketing pricing page is a JavaScript-rendered SPA route; no price is fetchable
+  from www.getbluma.com by any machine.
+- The four documented developer tiers and the two marketed commercial plans do not
+  reconcile — a buyer cannot tell whether "Business" is Starter, Pro, or neither.
+- Two different credit-costing models (flat 5 credits vs. a multiplier formula) are
+  published on the same page.

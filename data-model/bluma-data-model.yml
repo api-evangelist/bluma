@@ -1,0 +1,361 @@
+generated: '2026-08-12'
+method: searched
+source: >-
+  https://docs.getbluma.com/quickstart , https://docs.getbluma.com/authentication ,
+  https://docs.getbluma.com/concepts/templates , https://docs.getbluma.com/concepts/credits ,
+  https://docs.getbluma.com/concepts/webhooks , https://docs.getbluma.com/errors ,
+  https://docs.getbluma.com/guides/workspace-config-schema
+docs: https://docs.getbluma.com/api-reference/overview
+note: >-
+  The entity graph is read from Bluma's published request/response examples, not derived
+  from a spec — the advertised OpenAPI at https://api.getbluma.com/api/v1/openapi.json
+  returns 401. Every field and every id prefix below appears verbatim in Bluma's own
+  documentation. Fields not shown in a published example are omitted rather than guessed.
+id_prefixes:
+- prefix: batch_
+  entity: Video
+  note: A video generation job; the resource is called a video but its id reads as a batch.
+- prefix: key_
+  entity: ApiKey
+- prefix: webhook_
+  entity: Webhook
+- prefix: delivery_
+  entity: WebhookDelivery
+- prefix: evt_
+  entity: Event
+- prefix: txn_
+  entity: CreditTransaction
+- prefix: brand_
+  entity: Brand
+- prefix: req_
+  entity: RequestId
+  note: Correlation id on error bodies, not an addressable resource.
+- prefix: whsec_
+  entity: WebhookSecret
+  note: Signing secret, returned once at webhook creation.
+entities:
+- name: Video
+  id_prefix: batch_
+  description: An asynchronous video generation job and its resulting asset.
+  operations:
+  - POST /v1/videos
+  - GET /v1/videos/{id}
+  - GET /v1/videos/{id}/download
+  fields:
+  - name: id
+    type: string
+  - name: status
+    type: enum
+    values:
+    - queued
+    - processing
+    - completed
+    - failed
+  - name: progress
+    type: integer
+    range: 0-100
+  - name: template_id
+    type: string
+    references: Template.id
+  - name: url
+    type: string
+    nullable: true
+  - name: thumbnail_url
+    type: string
+    nullable: true
+  - name: duration
+    type: integer
+    unit: seconds
+  - name: size_bytes
+    type: integer
+  - name: created_at
+    type: datetime
+  - name: completed_at
+    type: datetime
+    nullable: true
+  - name: estimated_completion
+    type: datetime
+  - name: status_url
+    type: string
+  - name: credits_charged
+    type: integer
+  request_fields:
+  - name: template_id
+    type: string
+    required: true
+  - name: context
+    type: object
+    required: true
+    subfields:
+    - name: prompt
+      type: string
+      constraint: minimum 10 characters (per the published validation error)
+    - name: brand_id
+      type: string
+      references: Brand.id
+    - name: custom_data
+      type: object
+  - name: webhook_url
+    type: string
+    required: false
+- name: Template
+  id_prefix: null
+  id_form: human-readable slug (e.g. consumerclub-discord-zoomed)
+  description: A reusable video structure defining visual design, AI configuration, asset requirements and timing.
+  operations:
+  - GET /v1/templates
+  - GET /v1/templates/{id}
+  fields:
+  - name: id
+    type: string
+  - name: name
+    type: string
+  - name: description
+    type: string
+  - name: category
+    type: enum
+    values:
+    - entertainment
+    - educational
+  - name: credits_per_video
+    type: integer
+  - name: duration_range
+    type: object
+    subfields:
+    - min
+    - max
+  - name: ai_features
+    type: object
+    subfields:
+    - script_generation
+    - voice_generation
+    - image_generation
+  variants:
+    supported: true
+    note: User-created variants of a base template share the same 5-credit price.
+- name: ApiKey
+  id_prefix: key_
+  description: A scoped credential bound to a test or production environment.
+  operations:
+  - POST /v1/api-keys
+  - GET /v1/api-keys
+  - POST /v1/api-keys/{id}/rotate
+  - DELETE /v1/api-keys/{id}
+  fields:
+  - name: id
+    type: string
+  - name: api_key
+    type: secret
+    note: returned once
+  - name: name
+    type: string
+  - name: environment
+    type: enum
+    values:
+    - test
+    - production
+  - name: prefix
+    type: string
+  - name: scopes
+    type: array
+    references: scopes/bluma-scopes.yml
+  - name: rate_limit_per_hour
+    type: integer
+  - name: created_at
+    type: datetime
+- name: Credit
+  id_prefix: null
+  description: Account credit balance and allowance state.
+  operations:
+  - GET /v1/credits/balance
+  fields:
+  - name: credits
+    type: integer
+  - name: tier
+    type: string
+  - name: monthly_allowance
+    type: integer
+  - name: overage_used
+    type: integer
+  - name: reset_date
+    type: datetime
+  - name: usage
+    type: object
+    subfields:
+    - total_spent
+    - average_per_video
+- name: CreditTransaction
+  id_prefix: txn_
+  description: A single credit deduction, purchase or refund.
+  operations:
+  - GET /v1/credits/history
+  fields:
+  - name: id
+    type: string
+  - name: type
+    type: enum
+    values:
+    - deduction
+    - purchase
+  - name: amount
+    type: integer
+    note: signed
+  - name: balance_after
+    type: integer
+  - name: description
+    type: string
+  - name: metadata
+    type: object
+    subfields:
+    - template_id
+    - resolution
+    - duration
+  - name: created_at
+    type: datetime
+- name: Webhook
+  id_prefix: webhook_
+  description: A registered consumer endpoint and its event subscription.
+  operations:
+  - POST /v1/webhooks
+  - GET /v1/webhooks
+  - DELETE /v1/webhooks/{id}
+  - GET /v1/webhooks/{id}/deliveries
+  fields:
+  - name: id
+    type: string
+  - name: url
+    type: string
+  - name: events
+    type: array
+    references: Event.type
+  - name: secret
+    type: secret
+    prefix: whsec_
+    note: returned once
+  - name: is_active
+    type: boolean
+  - name: created_at
+    type: datetime
+- name: WebhookDelivery
+  id_prefix: delivery_
+  description: One attempt to deliver one event to one webhook.
+  operations:
+  - GET /v1/webhooks/{id}/deliveries
+  fields:
+  - name: id
+    type: string
+  - name: event_id
+    type: string
+    references: Event.id
+  - name: event_type
+    type: string
+  - name: attempt_number
+    type: integer
+  - name: status_code
+    type: integer
+  - name: duration_ms
+    type: integer
+  - name: error_message
+    type: string
+    nullable: true
+  - name: created_at
+    type: datetime
+- name: Event
+  id_prefix: evt_
+  description: An emitted platform event; the webhook payload envelope.
+  operations: []
+  fields:
+  - name: id
+    type: string
+  - name: type
+    type: string
+    references: asyncapi/bluma-webhooks.yml
+  - name: created_at
+    type: datetime
+  - name: data
+    type: object
+- name: Brand
+  id_prefix: brand_
+  description: >-
+    A brand identity applied to a render — colors, logo placement, fonts and brand voice
+    guidelines. Referenced from video context but no CRUD operations are documented.
+  operations: []
+  documented_crud: false
+  fields:
+  - name: id
+    type: string
+- name: Usage
+  id_prefix: null
+  description: Usage analytics for the account.
+  operations:
+  - GET /v1/usage/metrics
+  fields: []
+  fields_note: No response example is published for this endpoint.
+- name: WorkspaceTemplateConfig
+  id_prefix: null
+  description: >-
+    The template.config.ts contract a Bluma workspace must satisfy to render — required
+    AI services, per-service configuration, and a transform into Remotion props. This is
+    a build-time authoring contract, not a REST resource.
+  operations: []
+  surface: workspace
+  source: https://docs.getbluma.com/guides/workspace-config-schema
+  key_fields:
+  - id
+  - name
+  - description
+  - requiredServices
+  - scriptConfig
+  - voiceConfig
+  - imageConfigs
+  - frameExtractionConfig
+  - backgroundConfig
+  - componentName
+  - compositionId
+  - transformToRemotionProps
+  render_engine: Remotion
+relationships:
+- from: Video
+  to: Template
+  type: belongs_to
+  via: template_id
+- from: Video
+  to: Brand
+  type: belongs_to
+  via: context.brand_id
+  optional: true
+- from: Template
+  to: Video
+  type: has_many
+- from: CreditTransaction
+  to: Video
+  type: belongs_to
+  via: description / metadata.template_id
+  confidence: medium
+  note: >-
+    The published transaction example references the video in a prose description
+    ("Video generation: batch_xyz789") rather than in a typed foreign-key field.
+- from: Webhook
+  to: WebhookDelivery
+  type: has_many
+- from: WebhookDelivery
+  to: Event
+  type: belongs_to
+  via: event_id
+- from: Event
+  to: Video
+  type: belongs_to
+  via: data.id
+- from: ApiKey
+  to: Video
+  type: has_many
+  note: Rate limits and scopes are enforced per key.
+entity_count: 11
+relationship_count: 8
+gaps:
+- Brand is referenced by video creation but has no documented CRUD, so brand_id cannot be
+  obtained programmatically from the published reference.
+- GET /v1/usage/metrics is listed with no schema or example.
+- The primary resource is addressed as a "video" but carries a batch_ id prefix, and no
+  list operation for videos is documented in the REST reference even though both SDKs
+  expose videos.list().

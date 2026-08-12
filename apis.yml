@@ -1,15 +1,21 @@
 aid: bluma
 accessModel:
-  pricing: unknown
-  onboarding: unknown
-  trial: false
+  pricing: freemium
+  onboarding: self-service
+  trial: true
   try_now: false
-  public: false
-  label: Unknown
-  confidence: low
-  source: []
-  generated: '2026-07-22'
-  method: derived
+  public: true
+  label: Freemium
+  confidence: high
+  source:
+  - https://docs.getbluma.com/concepts/credits
+  - https://docs.getbluma.com/guides/test-vs-production
+  generated: '2026-08-12'
+  method: searched
+  note: >-
+    Free tier with 10 videos/month plus free unlimited test-mode keys; paid Starter $29/mo
+    and Pro $99/mo; Enterprise on request. Self-service signup and dashboard-issued API
+    keys. Not try_now — there is no interactive console and no anonymous test credential.
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/bluma.png
 name: Bluma
 description: >-
@@ -17,26 +23,27 @@ description: >-
   engine that lets creators, agencies, and brands produce social media video ads at scale. The platform
   "de-edits" existing reference videos into their individual scenes, captions, and overlays, then uses
   AI asset generation and a node-based canvas editor to recreate and remix shots into new ads, UGC, and
-  template-based videos optimized for TikTok, Reels, and Shorts. Bluma also publishes a set of free,
-  browser-based social tools (video downloading, carousel/slideshow extraction, TikTok/Instagram URL
-  normalization, metadata inspection, transcript generation, audio extraction, thumbnail capture).
-  Founded by Alisa Wu (formerly Zoox/Amazon) and Stephen Ni. No public developer API, OpenAPI, SDK, or
-  developer portal has been published to date; this profile captures the company identity and the
-  security posture of its public web surface.
+  template-based videos optimized for TikTok, Reels, and Shorts. Bluma ships a public developer program:
+  a REST API at api.getbluma.com/api/v1 for asynchronous video generation, templates, credits, API keys,
+  webhooks and usage analytics; Mintlify-hosted documentation at docs.getbluma.com; first-party
+  TypeScript and Python SDKs; a seven-event HMAC-signed webhook surface; published per-tier rate limits;
+  and an undocumented but live hosted MCP server at api.getbluma.com/api/mcp gated by Clerk OAuth 2.1
+  with dynamic client registration. Founded by Alisa Wu (formerly Zoox/Amazon) and Stephen Ni.
 url: https://raw.githubusercontent.com/api-evangelist/bluma/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
 - y-combinator
-x-tier: stub
-x-tier-reason: portfolio-lead
+x-tier: profiled
+x-tier-reason: public-developer-program
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-18'
+modified: '2026-08-12'
 tags:
 - Company
 - AI
 - Video
+- Video Generation
 - Advertising
 - Marketing
 - Content Creation
@@ -44,7 +51,89 @@ tags:
 - Social Media
 - Generative AI
 - Creative Tools
-apis: []
+- Text To Speech
+- Media
+- Automation
+- Webhooks
+apis:
+- name: Bluma API
+  description: >-
+    Asynchronous short-form video generation REST API. Submit a template id and a prompt
+    to POST /v1/videos, receive a job id, and collect the finished render either by
+    polling GET /v1/videos/{id} or by subscribing to the video.completed webhook, then
+    fetch a one-hour signed URL from GET /v1/videos/{id}/download. Also covers template
+    discovery, credit balance and history, API key lifecycle (create, list, rotate with a
+    30-day grace, revoke), webhook registration and delivery logs, and usage metrics.
+    Authenticated with prefixed bearer API keys (bluma_test_ / bluma_live_) carrying eight
+    product scopes.
+  humanURL: https://docs.getbluma.com/api-reference/overview
+  baseURL: https://api.getbluma.com/api/v1
+  tags:
+  - Video Generation
+  - AI
+  - Content Creation
+  - Media
+  properties:
+  - type: Documentation
+    url: https://docs.getbluma.com/
+  - type: APIReference
+    url: https://docs.getbluma.com/api-reference/overview
+  - type: GettingStarted
+    url: https://docs.getbluma.com/quickstart
+  - type: Authentication
+    url: authentication/bluma-authentication.yml
+  - type: OAuthScopes
+    url: scopes/bluma-scopes.yml
+  - type: ErrorCatalog
+    url: errors/bluma-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/bluma-rate-limits.yml
+  - type: Conventions
+    url: conventions/bluma-conventions.yml
+  - type: Webhooks
+    url: asyncapi/bluma-webhooks.yml
+  - type: DataModel
+    url: data-model/bluma-data-model.yml
+  - type: Sandbox
+    url: sandbox/bluma-sandbox.yml
+  - type: Lifecycle
+    url: lifecycle/bluma-lifecycle.yml
+  - type: Conformance
+    url: conformance/bluma-conformance.yml
+  - type: AgentSkill
+    url: skills/_index.yml
+  x-openapi-advertised:
+    url: https://api.getbluma.com/api/v1/openapi.json
+    http_status: 401
+    checked: '2026-08-12'
+    note: >-
+      Bluma's API Reference Overview advertises a complete OpenAPI at this URL and tells
+      readers to import it into Postman, Insomnia or Swagger UI. It returns 401 "No
+      authorization token provided" to an anonymous request, so the spec could not be
+      retrieved and none has been saved. Publishing it unauthenticated is the single
+      highest-value fix available to this provider.
+- name: Bluma MCP Server
+  description: >-
+    Hosted Model Context Protocol server on the Bluma API host. Discovered via RFC 9728
+    OAuth Protected Resource Metadata rather than from the documentation, which never
+    mentions it. Requires an OAuth 2.1 bearer token issued by clerk.getbluma.com;
+    dynamic client registration and PKCE S256 are supported, so a compliant MCP client
+    can bootstrap itself. An anonymous tools/list returns 401 with a spec-correct
+    WWW-Authenticate resource_metadata challenge, so the live tool surface is not
+    publicly readable.
+  humanURL: https://api.getbluma.com/.well-known/oauth-protected-resource
+  baseURL: https://api.getbluma.com/api/mcp
+  tags:
+  - MCP
+  - AI
+  - Agents
+  properties:
+  - type: MCPServer
+    url: mcp/bluma-mcp.yml
+  - type: Authentication
+    url: authentication/bluma-authentication.yml
+  - type: OAuthScopes
+    url: scopes/bluma-scopes.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -61,8 +150,82 @@ common:
   url: https://www.getbluma.com/terms
 - type: PrivacyPolicy
   url: https://www.getbluma.com/privacy
+- type: DeveloperPortal
+  url: https://docs.getbluma.com/
+- type: Documentation
+  url: https://docs.getbluma.com/
+- type: APIReference
+  url: https://docs.getbluma.com/api-reference/overview
+- type: GettingStarted
+  url: https://docs.getbluma.com/quickstart
+- type: Authentication
+  url: authentication/bluma-authentication.yml
+- type: OAuthScopes
+  url: scopes/bluma-scopes.yml
+- type: Pricing
+  url: https://docs.getbluma.com/concepts/credits
+- type: Plans
+  url: plans/bluma-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/bluma-rate-limits.yml
+- type: ErrorCatalog
+  url: errors/bluma-problem-types.yml
+- type: Conventions
+  url: conventions/bluma-conventions.yml
+- type: DataModel
+  url: data-model/bluma-data-model.yml
+- type: Lifecycle
+  url: lifecycle/bluma-lifecycle.yml
+- type: ChangeLog
+  url: changelog/bluma-changelog.yml
+- type: Conformance
+  url: conformance/bluma-conformance.yml
+- type: Sandbox
+  url: sandbox/bluma-sandbox.yml
+- type: Packages
+  url: packages/bluma-packages.yml
+- type: SDKs
+  url: packages/bluma-packages.yml
+- type: Webhooks
+  url: asyncapi/bluma-webhooks.yml
+- type: MCPServer
+  url: mcp/bluma-mcp.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: WellKnown
+  url: well-known/bluma-well-known.yml
+- type: LLMsTxt
+  url: llms/bluma-llms.txt
+- type: Support
+  url: https://discord.gg/cZGXY4nrFZ
+- type: Login
+  url: https://app.getbluma.com/settings?tab=api
 x-enrichment:
-  date: '2026-07-19'
-  status: backfilled
+  date: '2026-08-12'
+  status: enriched
+  artifacts_added: 23
   pass: local-v1
-  note: backfilled from .gitignore signal + verified work evidence
+  note: >-
+    Prior rounds recorded "no public developer API". That is now wrong: docs.getbluma.com
+    and api.getbluma.com both serve a live developer program, and a hosted MCP server was
+    found on the API host root via RFC 9728 metadata. No OpenAPI was saved — the spec
+    Bluma advertises at /api/v1/openapi.json is 401-gated — and no agent card exists.
+x-coverage:
+  state: covered
+  reason: contract-gated-but-docs-rich
+  detail: >-
+    Bluma's developer documentation, SDKs, webhook catalog, rate limits, plans and error
+    reference are all public and were captured, and its MCP server was discovered through
+    anonymous OAuth metadata; only the machine-readable OpenAPI it advertises at
+    https://api.getbluma.com/api/v1/openapi.json is behind the API's blanket auth gate
+    (HTTP 401), so no spec could be saved.
+  evidence:
+  - url: https://docs.getbluma.com/api-reference/overview
+    status: 200
+  - url: https://api.getbluma.com/api/v1/openapi.json
+    status: 401
+  - url: https://api.getbluma.com/.well-known/oauth-protected-resource
+    status: 200
+  - url: https://www.getbluma.com/llms.txt
+    status: 200
+  checked: '2026-08-12'

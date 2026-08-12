@@ -1,0 +1,161 @@
+generated: '2026-08-12'
+method: searched
+source: >-
+  https://docs.getbluma.com/concepts/webhooks , https://docs.getbluma.com/guides/webhooks-setup ,
+  https://docs.getbluma.com/errors
+docs: https://docs.getbluma.com/concepts/webhooks
+note: >-
+  Bluma documents a complete webhook surface — seven event types, a stable envelope,
+  HMAC signing, a published retry ladder, automatic disabling, and a delivery-log
+  endpoint — but ships NO AsyncAPI document. Nothing at /asyncapi.yaml, no event catalog
+  file, and no public GitHub organization (github.com/bluma returns 404). This artifact
+  captures the webhook catalog as published; no AsyncAPI has been authored on Bluma's
+  behalf.
+asyncapi_published: false
+asyncapi_probed:
+- url: https://api.getbluma.com/asyncapi.yaml
+  status: 401
+- url: https://docs.getbluma.com/asyncapi.yaml
+  status: 404
+- url: https://api.github.com/orgs/bluma
+  status: 404
+transport: HTTPS POST
+delivery: at-least-once
+envelope:
+  fields:
+  - name: id
+    description: Event id
+    prefix: evt_
+  - name: type
+    description: Event type string
+  - name: created_at
+    description: ISO 8601 timestamp
+  - name: data
+    description: Event-type-specific payload object
+headers:
+- name: X-Bluma-Signature
+  description: 'HMAC-SHA256 of the raw body, formatted sha256=<hex>'
+- name: X-Bluma-Event-Id
+  description: Event id, mirrors body.id — the documented dedupe key
+- name: X-Bluma-Event-Type
+  description: Event type, mirrors body.type
+- name: User-Agent
+  description: Bluma-Webhooks/1.0
+- name: Content-Type
+  description: application/json
+security:
+  scheme: HMAC-SHA256
+  secret_prefix: whsec_
+  secret_issuance: returned once from POST /api/v1/webhooks
+  signed_payload: raw request body (not re-serialized JSON)
+  sdk_helper: Bluma.webhooks.verify(payload, signature, secret)
+events:
+- name: video.queued
+  category: video
+  description: Video generation started
+  fired_when: Immediately after creation
+- name: video.processing
+  category: video
+  description: Video is being generated
+  fired_when: When rendering begins
+- name: video.completed
+  category: video
+  description: Video is ready
+  fired_when: Generation successful
+  payload_fields:
+  - id
+  - status
+  - template_id
+  - url
+  - thumbnail_url
+  - duration
+  - size_bytes
+  - credits_consumed
+- name: video.failed
+  category: video
+  description: Video generation failed
+  fired_when: If an error occurs during rendering
+  payload_fields:
+  - id
+  - status
+  - template_id
+  - error.type
+  - error.detail
+- name: video.deleted
+  category: video
+  description: Video was deleted
+  fired_when: When a user deletes a video
+- name: credits.low
+  category: credits
+  description: Credit balance running low
+  fired_when: Balance drops below 10
+- name: credits.exhausted
+  category: credits
+  description: No credits remaining
+  fired_when: Balance reaches 0
+subscription:
+  register:
+    operation: POST /api/v1/webhooks
+    body:
+    - url
+    - events[]
+    response_fields:
+    - id
+    - url
+    - events
+    - secret
+    - is_active
+    - created_at
+  list:
+    operation: GET /api/v1/webhooks
+  delete:
+    operation: DELETE /api/v1/webhooks/{id}
+  deliveries:
+    operation: GET /api/v1/webhooks/{id}/deliveries
+    response_fields:
+    - id
+    - event_id
+    - event_type
+    - attempt_number
+    - status_code
+    - duration_ms
+    - error_message
+    - created_at
+delivery_policy:
+  success_criteria: 2xx response from the consumer endpoint
+  retries:
+  - attempt: 1
+    after: 3 seconds
+  - attempt: 2
+    after: 30 seconds
+  - attempt: 3
+    after: 5 minutes
+  - attempt: 4
+    after: 1 hour
+  max_attempts: 4
+  auto_disable_after_consecutive_failures: 10
+  rate_limited: false
+  rate_limit_note: Webhook deliveries are exempt from API rate limits (server-initiated).
+consumer_idempotency:
+  required: true
+  key: event_id (body.id / X-Bluma-Event-Id)
+  guidance_published: true
+  note: >-
+    Bluma instructs consumers to dedupe on event_id and publishes a Redis-based example.
+    This is CONSUMER-side idempotency for duplicate webhook deliveries — it is NOT
+    request idempotency on the REST API, which Bluma does not support (no
+    Idempotency-Key header is documented anywhere).
+testing:
+  tools_suggested:
+  - webhook.site
+  - ngrok
+  test_mode: Webhooks are fully functional with bluma_test_ keys.
+event_count: 7
+gaps:
+- No AsyncAPI (or any machine-readable event schema) is published, so the seven event
+  payloads exist only as prose plus examples.
+- No documented webhook signature timestamp or replay window — the signature covers the
+  body only, so a captured delivery can be replayed indefinitely unless the consumer
+  dedupes on event_id.
+- No streaming or WebSocket surface; the rate-limits page states outright that Bluma
+  does not support WebSockets.

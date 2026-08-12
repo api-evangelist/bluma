@@ -1,0 +1,80 @@
+generated: '2026-08-12'
+method: searched
+source: >-
+  https://docs.getbluma.com/sdks/overview plus release metadata from
+  registry.npmjs.org/@stephen_turtles/bluma-sdk and pypi.org/pypi/bluma/json on 2026-08-12
+docs: https://docs.getbluma.com/sdks/overview
+scope: sdk-only
+scope_note: >-
+  Bluma publishes a Changelog section on its SDK Overview page, but has NO API changelog.
+  https://docs.getbluma.com/changelog returns 404, no release-notes page exists anywhere
+  in the documentation navigation, and no public GitHub organization exists
+  (https://api.github.com/orgs/bluma returns 404), so there are no release tags or
+  commit history either. The entries below are the provider's own SDK changelog plus the
+  dated releases its two package registries record.
+scheme: semver
+current_version:
+  api: v1
+  typescript_sdk: 1.2.0
+  python_sdk: 1.2.0
+api_changelog_published: false
+api_changelog_probed:
+- url: https://docs.getbluma.com/changelog
+  status: 404
+- url: https://www.getbluma.com/changelog
+  status: 200
+  note: SPA catch-all shell, not a changelog
+entries:
+- version: 1.2.0
+  date: '2025-11-13'
+  component: sdk
+  packages:
+  - name: '@stephen_turtles/bluma-sdk'
+    registry: npm
+    published: '2025-11-13'
+  - name: bluma
+    registry: pypi
+    published: '2025-11-13'
+  breaking: false
+  highlights: []
+  highlights_note: >-
+    No release notes are published for this version. The date and version are read from
+    registry metadata; nothing about its contents has been asserted.
+- version: 1.1.0
+  date: '2025-11-13'
+  component: sdk
+  packages:
+  - name: '@stephen_turtles/bluma-sdk'
+    registry: npm
+    published: '2025-11-13'
+  breaking: false
+  highlights: []
+  highlights_note: npm only; no corresponding PyPI release. No release notes published.
+- version: 1.0.0
+  date: '2025-11-04'
+  component: sdk
+  packages:
+  - name: '@stephen_turtles/bluma-sdk'
+    registry: npm
+    published: '2025-11-04'
+  - name: bluma
+    registry: pypi
+    published: '2025-11-04'
+  breaking: false
+  additions:
+  - Initial release
+  - Support for all core endpoints
+  - Webhook verification
+  - TypeScript and Python SDKs
+  source: https://docs.getbluma.com/sdks/overview
+entry_count: 3
+latest_change: '2025-11-13'
+staleness_note: >-
+  The most recent dated change on any Bluma developer surface is 2025-11-13, nine months
+  before this check. The API itself is live and the documentation is current, so this is
+  an absence of published change communication rather than evidence of an inactive API.
+gaps:
+- No API changelog, release notes page, or version history — a consumer has no way to
+  learn what changed in /v1.
+- The published SDK changelog covers only 1.0.0; 1.1.0 and 1.2.0 shipped undocumented.
+- No public source repository, so there is no commit log to fall back on.

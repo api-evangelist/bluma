@@ -1,0 +1,149 @@
+generated: '2026-08-12'
+method: searched
+source: >-
+  https://docs.getbluma.com/api-reference/overview , https://docs.getbluma.com/authentication ,
+  https://docs.getbluma.com/errors , https://docs.getbluma.com/concepts/rate-limits ,
+  https://docs.getbluma.com/concepts/webhooks , https://docs.getbluma.com/quickstart
+docs: https://docs.getbluma.com/api-reference/overview
+note: >-
+  Cross-cutting runtime semantics for the Bluma REST API, read from the documentation.
+  No OpenAPI was available to derive from: the spec Bluma advertises at
+  https://api.getbluma.com/api/v1/openapi.json returns HTTP 401.
+base_url: https://api.getbluma.com/api/v1
+base_url_development: http://localhost:5001/api/v1
+base_url_note: >-
+  The docs publish the production base as https://api.getbluma.com/api/v1 while paths are
+  written throughout as /v1/videos, /v1/templates and so on — the /api segment is silently
+  dropped in the endpoint list but present in every curl example. Callers must use the
+  full https://api.getbluma.com/api/v1/... form.
+authentication:
+  style: bearer API key
+  header: Authorization
+  format: 'Bearer bluma_live_... | Bearer bluma_test_...'
+  detail: authentication/bluma-authentication.yml
+idempotency:
+  request_idempotency_supported: false
+  header: null
+  scope: null
+  retention: null
+  note: >-
+    Bluma documents NO request idempotency mechanism. There is no Idempotency-Key header,
+    no client-supplied request id, and no documented behavior for a retried
+    POST /api/v1/videos — meaning a retry after a timeout can bill a second render and
+    charge credits twice. The only idempotency Bluma discusses is CONSUMER-side webhook
+    deduplication on event_id, which protects the consumer, not the API caller.
+    See asyncapi/bluma-webhooks.yml.
+  consumer_side_webhook_idempotency:
+    supported: true
+    key: event_id
+    docs: https://docs.getbluma.com/concepts/webhooks
+pagination:
+  style: limit/offset
+  params:
+  - name: limit
+    in: query
+    type: integer
+    max: 100
+    description: Items per page
+  - name: offset
+    in: query
+    type: integer
+    description: Number of items to skip
+  response_fields:
+  - name: total
+    description: Total matching items
+  cursor_supported: false
+  link_header: false
+  example: GET /v1/credits/history?limit=50&offset=100
+  sdk_support: >-
+    Both SDKs wrap pagination as iteration (async for over bluma.videos.list in
+    TypeScript, plain for in Python).
+async_model:
+  pattern: accept-then-poll-or-webhook
+  create_response: 202-style body with id, status, status_url, estimated_completion, credits_charged
+  id_prefix: batch_
+  statuses:
+  - queued
+  - processing
+  - completed
+  - failed
+  progress_field: progress (0-100 integer)
+  poll_operation: GET /v1/videos/{id}
+  recommended_poll_interval: 5 seconds (per the published code samples)
+  preferred_alternative: webhooks
+  typical_duration: 2-5 minutes
+  terminal_artifact:
+    operation: GET /v1/videos/{id}/download
+    returns: signed download_url plus expires_at
+    ttl: 1 hour
+field_conventions:
+  case: snake_case
+  timestamps: ISO 8601 UTC (e.g. 2025-11-03T10:30:00Z)
+  ids: prefixed opaque strings — see data-model/bluma-data-model.yml
+  expansion_supported: false
+  sparse_fieldsets_supported: false
+  metadata_field: >-
+    Present on credit transactions and on error bodies as a context object; there is no
+    general-purpose customer-writable metadata field on resources.
+request_tracing:
+  request_id_field: request_id (body, error responses)
+  request_id_prefix: req_
+  request_id_header: null
+  note: >-
+    No X-Request-Id request or response header is documented. The correlation id appears
+    only inside 500-class error bodies, so a successful call cannot be correlated to a
+    support ticket.
+versioning:
+  scheme: URL path
+  current: v1
+  policy: >-
+    "Breaking changes will result in a new version (/v2/). Your existing integrations will
+    continue working."
+  header_versioning: false
+  date_versioning: false
+  detail: lifecycle/bluma-lifecycle.yml
+error_envelope:
+  root_key: error
+  claimed_standard: RFC 7807
+  actual: nested custom JSON, media type application/json
+  detail: errors/bluma-problem-types.yml
+rate_limit_signaling:
+  headers:
+  - X-RateLimit-Limit
+  - X-RateLimit-Remaining
+  - X-RateLimit-Reset
+  - Retry-After
+  standard: legacy X-RateLimit-* (not IETF RateLimit-*)
+  exhaustion_status: 429
+  detail: rate-limits/bluma-rate-limits.yml
+environments:
+  model: key-prefix switching on one base URL
+  test_prefix: bluma_test_
+  live_prefix: bluma_live_
+  same_base_url: true
+  detail: sandbox/bluma-sandbox.yml
+content_type:
+  request: application/json
+  response: application/json
+  problem_json: false
+transport:
+  https_only: true
+  hsts: 'max-age=31536000; includeSubDomains; preload'
+  http_version: HTTP/2
+  cors_expose_headers:
+  - Content-Length
+  - Content-Type
+  - Content-Disposition
+  security_headers_observed:
+  - content-security-policy
+  - x-content-type-options
+  - x-frame-options
+  - referrer-policy
+  - permissions-policy
+  observed_on: https://api.getbluma.com/.well-known/oauth-protected-resource
+gaps:
+- No request idempotency on a credit-consuming, non-deterministic POST. This is the
+  single largest runtime-semantics gap in the API.
+- No request-id header on successful responses.
+- Offset pagination only, with no cursor option, on a history endpoint that grows
+  monotonically.
