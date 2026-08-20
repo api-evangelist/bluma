@@ -41,6 +41,22 @@ created: '2026-07-17'
 modified: '2026-08-12'
 tags:
 - Company
+- Artificial Intelligence
+- Video
+- Video Generation
+- Advertising
+- Marketing
+- Content Creation
+- Short-Form Video
+- Social-Media
+- Generative AI
+- Creative Tools
+- Text-to-Speech
+- Media
+- Automation
+- Webhook
+tags_raw:
+- Company
 - AI
 - Video
 - Video Generation
@@ -69,6 +85,11 @@ apis:
   humanURL: https://docs.getbluma.com/api-reference/overview
   baseURL: https://api.getbluma.com/api/v1
   tags:
+  - Video Generation
+  - Artificial Intelligence
+  - Content Creation
+  - Media
+  tags_raw:
   - Video Generation
   - AI
   - Content Creation
@@ -124,6 +145,10 @@ apis:
   humanURL: https://api.getbluma.com/.well-known/oauth-protected-resource
   baseURL: https://api.getbluma.com/api/mcp
   tags:
+  - MCP
+  - Artificial Intelligence
+  - Agents
+  tags_raw:
   - MCP
   - AI
   - Agents
