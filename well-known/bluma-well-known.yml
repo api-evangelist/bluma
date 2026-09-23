@@ -1,16 +1,20 @@
-generated: '2026-08-12'
+generated: '2026-09-19'
 method: probed
 source: live GET probes of every Bluma host on 2026-08-12
-note: >-
-  Two of Bluma's three hosts serve real /.well-known/ documents. The API host
-  (api.getbluma.com) publishes RFC 9728 OAuth 2.0 Protected Resource Metadata that
-  advertises the hosted MCP server at https://api.getbluma.com/api/mcp and names
-  clerk.getbluma.com as its authorization server; clerk.getbluma.com (a Clerk-hosted
-  CNAME on Bluma's own domain) serves RFC 8414 Authorization Server Metadata, OpenID
-  Connect discovery and a JWKS. Every other well-known path on the API host returns the
-  API's blanket 401 ("No authorization token provided"), and the marketing host
-  www.getbluma.com is a single-page-app catch-all that answers 200 with the SAME 13,073-byte
-  HTML shell for every path — those 200s are NOT documents and are recorded as misses.
+note: 'Two of Bluma''s three hosts serve real /.well-known/ documents. The API host (api.getbluma.com)
+  publishes RFC 9728 OAuth 2.0 Protected Resource Metadata that advertises the hosted MCP server at https://api.getbluma.com/api/mcp
+  and names clerk.getbluma.com as its authorization server; clerk.getbluma.com (a Clerk-hosted CNAME on
+  Bluma''s own domain) serves RFC 8414 Authorization Server Metadata, OpenID Connect discovery and a JWKS.
+  Every other well-known path on the API host returns the API''s blanket 401 ("No authorization token
+  provided"), and the marketing host www.getbluma.com is a single-page-app catch-all that answers 200
+  with the SAME 13,073-byte HTML shell for every path — those 200s are NOT documents and are recorded
+  as misses.
+
+
+  MCP-host OAuth discovery added 2026-09-19 (roadmap#321/#337): the harvest visits a provider''s primary
+  hosts, and RFC 9728 protected-resource metadata lives on the MCP host, so these documents existed and
+  were invisible to the scorer. Fetched live and validated on `resource`/`issuer`; one negative control
+  per host.'
 hosts:
 - host: api.getbluma.com
   role: api
@@ -43,11 +47,16 @@ hosts:
   - path: /.well-known/agent.json
     status: 401
     document: false
+  documents:
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: bluma-api-oauth-protected-resource.json
+    bytes: 196
+  path_echo_control: passed
 - host: clerk.getbluma.com
   role: authorization-server
-  note: >-
-    Clerk-hosted identity service on Bluma's own domain, named as the sole
-    authorization_servers[] entry by the API host's protected-resource metadata.
+  note: Clerk-hosted identity service on Bluma's own domain, named as the sole authorization_servers[]
+    entry by the API host's protected-resource metadata.
   paths:
   - path: /.well-known/oauth-authorization-server
     status: 200
@@ -67,6 +76,12 @@ hosts:
     document: true
     file: null
     note: 450-byte RSA JWKS; not saved (rotating key material, no archival value)
+  documents:
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: bluma-clerk-oauth-authorization-server.json
+    bytes: 1199
+  path_echo_control: passed
 - host: www.getbluma.com
   role: marketing
   spa_catch_all: true
@@ -106,3 +121,15 @@ summary:
   api_catalog: false
   oauth_metadata: true
   openid_configuration: true
+x-mcp-probe:
+  probed: '2026-09-19'
+  issue: roadmap#321, roadmap#337
+  documents:
+  - host: https://api.getbluma.com
+    path: /.well-known/oauth-protected-resource
+    file: bluma-api-oauth-protected-resource.json
+  - host: https://clerk.getbluma.com
+    path: /.well-known/oauth-authorization-server
+    file: bluma-clerk-oauth-authorization-server.json
+  validated_on: resource (RFC 9728) / issuer (RFC 8414, OIDC)
+  negative_control: one per host; a 2xx JSON object at an impossible path discards the host
