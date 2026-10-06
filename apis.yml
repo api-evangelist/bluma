@@ -49,7 +49,7 @@ x-tier: profiled
 x-tier-reason: public-developer-program
 specificationVersion: '0.23'
 created: '2026-07-17'
-modified: '2026-08-12'
+modified: '2026-10-06'
 tags:
 - Company
 - Artificial Intelligence
@@ -177,6 +177,8 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- url: https://www.getbluma.com/blog/
+  type: Blog
 - type: DomainSecurity
   url: security/bluma-domain-security.yml
 - type: Website
