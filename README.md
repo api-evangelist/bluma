@@ -64,6 +64,126 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Bluma is a company surfaced as a portfolio company of y-combinator and added to the API Evangelist network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+Bluma is a San Francisco-based AI company (Y Combinator Fall 2025) building a short-form AI content engine that lets creators, agencies, and brands produce social media video ads at scale. The platform "de-edits" existing reference videos into their individual scenes, captions, and overlays, then uses AI asset generation and a node-based canvas editor to recreate and remix shots into new ads, UGC, and template-based videos optimized for TikTok, Reels, and Shorts. Bluma ships a public developer program: a REST API at api.getbluma.com/api/v1 for asynchronous video generation, templates, credits, API keys, webhooks and usage analytics; Mintlify-hosted documentation at docs.getbluma.com; first-party TypeScript and Python SDKs; a seven-event HMAC-signed webhook surface; published per-tier rate limits; and an undocumented but live hosted MCP server at api.getbluma.com/api/mcp gated by Clerk OAuth 2.1 with dynamic client registration. Founded by Alisa Wu (formerly Zoox/Amazon) and Stephen Ni.
 
-Backed by: y-combinator
+**Areas:** Company · Artificial Intelligence · Video · Video Generation · Advertising · Marketing · Content Creation · Short-Form Video · Social Media · Generative AI · Creative Tools · Text-to-Speech
+
+## Bluma on APIs.io
+
+Everything profiled for Bluma is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/bluma/](https://apis.io/providers/bluma/)** — or go straight to one of the APIs or properties below.
+
+### APIs (2)
+
+- [Bluma API](https://apis.io/apis/bluma/bluma-api/) — Asynchronous short-form video generation REST API. Submit a template id and a prompt to POST /v1/videos, receive a job id, and collect the finished render…
+- [Bluma MCP Server](https://apis.io/apis/bluma/bluma-mcp-server/) — Hosted Model Context Protocol server on the Bluma API host. Discovered via RFC 9728 OAuth Protected Resource Metadata rather than from the documentation,…
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [Bluma Webhooks](https://apis.io/asyncapis/bluma/bluma-webhooks/)
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [bluma-mcp.yml](https://apis.io/servers/bluma/bluma-mcp-yml/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Bluma Authentication](https://apis.io/security/bluma/bluma-authentication/)
+- [Bluma Domain Security](https://apis.io/security/bluma/bluma-domain-security/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Bluma Scopes](https://apis.io/scopes/bluma/bluma-scopes/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Bluma Plans Pricing](https://apis.io/plans/bluma/bluma-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Bluma Rate Limits](https://apis.io/rate-limits/bluma/bluma-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.getbluma.com)
+- [Documentation](https://docs.getbluma.com/)
+- [Getting started](https://docs.getbluma.com/quickstart)
+- [API reference](https://docs.getbluma.com/api-reference/overview)
+- [Pricing](https://docs.getbluma.com/concepts/credits)
+- [Sign up](https://www.getbluma.com/signup)
+- [Support](https://discord.gg/cZGXY4nrFZ)
+- [Blog](https://www.getbluma.com/blog/)
+- [Terms of service](https://www.getbluma.com/terms)
+- [Privacy policy](https://www.getbluma.com/privacy)
+
+## API Evangelist rating
+
+**Kin Score 58.6** — strong · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 75.0 |
+| Contract quality | 39.0 |
+| Contract governance | 18.2 |
+| Operational transparency | 55.3 |
+| Developer ergonomics | 73.2 |
+| Access clarity | 76.3 |
+
+**Agent readiness 50.9** — agent-ready (gated down from agent-native)
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | verified |
+| Auth Clarity | served (partial credit) |
+| Idempotency | — |
+| Error Semantics | documented (partial credit) |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | yes |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | served (partial credit) |
+| Protected Resource Metadata | verified |
+| Dynamic Client Registration | yes |
+| Agentic Commerce | — |
+| Pagination Ratio | na |
+| Operation Distinctiveness | na |
+
+**Regulatory alignment 31.8** — AI & Biometrics
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/bluma/](https://apis.io/providers/bluma/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Bluma: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/bluma/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
